@@ -4,6 +4,9 @@
 
 package frc.robot.commands;
 
+import static frc.robot.generated.ChoreoTraj.NeutralZoneLeftTrajectory$0;
+import static frc.robot.generated.ChoreoTraj.NeutralZoneLeftTrajectory$1;
+import static frc.robot.generated.ChoreoTraj.NeutralZoneLeftTrajectory$2;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$1;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$2;
@@ -41,15 +44,14 @@ public final class AutoRoutines {
     private final AutoChooser autoChooser;
 
     public AutoRoutines(
-        Swerve swerve,
-        Intake intake,
-        Floor floor,
-        Feeder feeder,
-        Shooter shooter,
-        Hood hood,
-        Hanger hanger,
-        Limelight limelight
-    ) {
+            Swerve swerve,
+            Intake intake,
+            Floor floor,
+            Feeder feeder,
+            Shooter shooter,
+            Hood hood,
+            Hanger hanger,
+            Limelight limelight) {
         this.swerve = swerve;
         this.intake = intake;
         this.floor = floor;
@@ -67,15 +69,66 @@ public final class AutoRoutines {
 
     public void configure() {
         autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
+        autoChooser.addRoutine("Neutral Zone Left", this::neutralZoneRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
 
-    private AutoRoutine neutralZone(){
+    private AutoRoutine neutralZoneRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("Neutral Zone");
+
+        // (Hay que asegurarse de que el nombre del import coincida con tu
+        // ChoreoTraj.java,
+        // a veces es NeutralZone$0 y a veces NeutralZoneLeftTrajectory$0 dependiendo de
+        // cómo lo nombramos en la UI)
+        final AutoTrajectory startToNeutralZone = NeutralZoneLeftTrajectory$0.asAutoTraj(routine);
+        final AutoTrajectory neutralZoneToShootingPose = NeutralZoneLeftTrajectory$1.asAutoTraj(routine);
+        final AutoTrajectory shootingPoseToTower = NeutralZoneLeftTrajectory$2.asAutoTraj(routine);
+
+        // 1. Al iniciar el auto: Resetear odometría y arrancar hacia la Neutral Zone
+        routine.active().onTrue(
+                Commands.sequence(
+                        startToNeutralZone.resetOdometry(),
+                        startToNeutralZone.cmd()));
+
+        // 2. Bajar el Intake desde el principio (espera a que el Hanger se acomode
+        // primero)
+        routine.observe(hanger::isHomed).onTrue(
+                Commands.sequence(
+                        Commands.waitSeconds(0.5),
+                        intake.runOnce(() -> intake.set(Intake.Position.INTAKE))));
+
+        // 3. Empezar a girar los rollers del intake 1 segundo antes de llegar a la
+        // Neutral Zone
+        startToNeutralZone.atTimeBeforeEnd(1).onTrue(intake.intakeCommand());
+
+        // 4. Esperar una fracción de segundo al llegar para asegurar la nota, y luego
+        // regresar a tirar
+        startToNeutralZone.doneDelayed(0.2).onTrue(neutralZoneToShootingPose.cmd());
+
+        // 5. Mientras va de regreso: Preparar el shooter y el hood para ganar tiempo
+        neutralZoneToShootingPose.active().whileTrue(limelight.idle());
+        neutralZoneToShootingPose.atTime(0.5).onTrue(
+                Commands.parallel(
+                        shooter.spinUpCommand(2600), // Puedes ajustar estas RPM después
+                        hood.positionCommand(0.32))); // Ángulo del hood
+
+        // 6. Al llegar a la posición de tiro hay que disparar por un buen rato para
+        // vaciar el hopper y luego ir a escalar
+        neutralZoneToShootingPose.done().onTrue(
+                Commands.sequence(
+                        subsystemCommands.aimAndShoot()
+                                .withTimeout(5.0), // <- Aquí se controla cuánto tiempo se queda disparando
+                        shootingPoseToTower.cmd()));
+
+        // 7. Al ir hacia la torre: Preparar los ganchos y colgarse al final
+        shootingPoseToTower.active().whileTrue(limelight.idle());
+        shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
 
         return routine;
     }
+
     private AutoRoutine outpostAndDepotRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("Outpost and Depot");
         final AutoTrajectory startToOutpost = OutpostAndDepotTrajectory$0.asAutoTraj(routine);
@@ -84,18 +137,14 @@ public final class AutoRoutines {
         final AutoTrajectory shootingPoseToTower = OutpostAndDepotTrajectory$3.asAutoTraj(routine);
 
         routine.active().onTrue(
-            Commands.sequence(
-                startToOutpost.resetOdometry(),
-                startToOutpost.cmd()
-            )
-        );
+                Commands.sequence(
+                        startToOutpost.resetOdometry(),
+                        startToOutpost.cmd()));
 
         routine.observe(hanger::isHomed).onTrue(
-            Commands.sequence(
-                Commands.waitSeconds(0.5),
-                intake.runOnce(() -> intake.set(Intake.Position.INTAKE))
-            )
-        );
+                Commands.sequence(
+                        Commands.waitSeconds(0.5),
+                        intake.runOnce(() -> intake.set(Intake.Position.INTAKE))));
 
         startToOutpost.doneDelayed(1).onTrue(outpostToDepot.cmd());
 
@@ -104,18 +153,14 @@ public final class AutoRoutines {
 
         depotToShootingPose.active().whileTrue(limelight.idle());
         depotToShootingPose.atTime(0.5).onTrue(
-            Commands.parallel(
-                shooter.spinUpCommand(2600),
-                hood.positionCommand(0.32)
-            )
-        );
+                Commands.parallel(
+                        shooter.spinUpCommand(2600),
+                        hood.positionCommand(0.32)));
         depotToShootingPose.done().onTrue(
-            Commands.sequence(
-                subsystemCommands.aimAndShoot()
-                    .withTimeout(5),
-                shootingPoseToTower.cmd()
-            )
-        );
+                Commands.sequence(
+                        subsystemCommands.aimAndShoot()
+                                .withTimeout(5),
+                        shootingPoseToTower.cmd()));
 
         shootingPoseToTower.active().whileTrue(limelight.idle());
         shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.HANGING));

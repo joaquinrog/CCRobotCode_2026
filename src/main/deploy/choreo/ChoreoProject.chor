@@ -4,7 +4,36 @@
  "type":"Swerve",
  "variables":{
   "expressions":{},
-  "poses":{}
+  "poses":{
+   "ClimbPose":{
+    "x":{
+     "exp":"0.9413638234138489 m",
+     "val":0.9413638234138488
+    },
+    "y":{
+     "exp":"3.5643614673614503 m",
+     "val":3.5643614673614503
+    },
+    "heading":{
+     "exp":"180 deg",
+     "val":3.141592653589793
+    }
+   },
+   "ShootingPose":{
+    "x":{
+     "exp":"2.4983891487121577 m",
+     "val":2.4983891487121577
+    },
+    "y":{
+     "exp":"4.035276412963867 m",
+     "val":4.035276412963867
+    },
+    "heading":{
+     "exp":"0 deg",
+     "val":0.0
+    }
+   }
+  }
  },
  "config":{
   "frontLeft":{
@@ -76,7 +105,7 @@
  },
  "generationFeatures":[],
  "codegen":{
-  "root":"../../java/frc/robot/generated",
+  "root":"..\\..\\java\\frc\\robot\\generated",
   "genVars":true,
   "genTrajData":true,
   "useChoreoLib":true
