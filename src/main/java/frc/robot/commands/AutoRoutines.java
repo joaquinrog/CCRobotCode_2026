@@ -71,6 +71,11 @@ public final class AutoRoutines {
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
 
+    private AutoRoutine neutralZone(){
+        final AutoRoutine routine = autoFactory.newRoutine("Neutral Zone");
+
+        return routine;
+    }
     private AutoRoutine outpostAndDepotRoutine() {
         final AutoRoutine routine = autoFactory.newRoutine("Outpost and Depot");
         final AutoTrajectory startToOutpost = OutpostAndDepotTrajectory$0.asAutoTraj(routine);
