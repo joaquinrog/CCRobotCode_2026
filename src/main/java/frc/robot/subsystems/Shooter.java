@@ -110,6 +110,8 @@ public class Shooter extends SubsystemBase {
         return defer(() -> spinUpCommand(dashboardTargetRPM)); 
     }
 
+    
+
     public boolean isVelocityWithinTolerance() {
         return motors.stream().allMatch(motor -> {
             final boolean isInVelocityMode = motor.getAppliedControl().equals(velocityRequest);
