@@ -52,7 +52,7 @@ public class Hood extends SubsystemBase {
     /** Expects a position between 0.0 and 1.0 */
     public Command positionCommand(double position) {
         return runOnce(() -> setPosition(position))
-            .andThen(Commands.waitUntil(this::isPositionWithinTolerance));
+                .andThen(Commands.waitUntil(this::isPositionWithinTolerance));
     }
 
     public boolean isPositionWithinTolerance() {
@@ -72,8 +72,8 @@ public class Hood extends SubsystemBase {
         final Distance maxDistanceTraveled = kMaxServoSpeed.times(elapsedTime);
         final double maxPercentageTraveled = maxDistanceTraveled.div(kServoLength).in(Value);
         currentPosition = targetPosition > currentPosition
-            ? Math.min(targetPosition, currentPosition + maxPercentageTraveled)
-            : Math.max(targetPosition, currentPosition - maxPercentageTraveled);
+                ? Math.min(targetPosition, currentPosition + maxPercentageTraveled)
+                : Math.max(targetPosition, currentPosition - maxPercentageTraveled);
     }
 
     @Override
@@ -83,8 +83,17 @@ public class Hood extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
+        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
+                null);
         builder.addDoubleProperty("Current Position", () -> currentPosition, null);
         builder.addDoubleProperty("Target Position", () -> targetPosition, value -> setPosition(value));
+    }
+
+    public double getCurrentPosition() {
+        return currentPosition;
+    }
+
+    public double getTargetPosition() {
+        return targetPosition;
     }
 }

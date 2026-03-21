@@ -18,6 +18,7 @@ public class Limelight extends SubsystemBase {
     private final String name;
     private final NetworkTable telemetryTable;
     private final StructPublisher<Pose2d> posePublisher;
+    private Optional<Measurement> lastMeasurement = Optional.empty();
 
     public Limelight(String name) {
         this.name = name;
@@ -30,27 +31,27 @@ public class Limelight extends SubsystemBase {
 
         final PoseEstimate poseEstimate_MegaTag1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
         final PoseEstimate poseEstimate_MegaTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
-        if (
-            poseEstimate_MegaTag1 == null 
+
+        if (poseEstimate_MegaTag1 == null
                 || poseEstimate_MegaTag2 == null
                 || poseEstimate_MegaTag1.tagCount == 0
-                || poseEstimate_MegaTag2.tagCount == 0
-        ) {
+                || poseEstimate_MegaTag2.tagCount == 0) {
+            lastMeasurement = Optional.empty();
             return Optional.empty();
         }
 
-        // Combine the readings from MegaTag1 and MegaTag2:
-        // 1. Use the more stable position from MegaTag2
-        // 2. Use the rotation from MegaTag1 (with low confidence) to counteract gyro drift
+        // Combine MT2 translation with MT1 rotation
         poseEstimate_MegaTag2.pose = new Pose2d(
-            poseEstimate_MegaTag2.pose.getTranslation(),
-            poseEstimate_MegaTag1.pose.getRotation()
-        );
-        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.1, 0.1, 10.0);
+                poseEstimate_MegaTag2.pose.getTranslation(),
+                poseEstimate_MegaTag1.pose.getRotation());
 
+        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.1, 0.1, 10.0);
+        final Measurement measurement = new Measurement(poseEstimate_MegaTag2, standardDeviations);
+
+        lastMeasurement = Optional.of(measurement);
         posePublisher.set(poseEstimate_MegaTag2.pose);
 
-        return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
+        return lastMeasurement;
     }
 
     public static class Measurement {
@@ -61,5 +62,33 @@ public class Limelight extends SubsystemBase {
             this.poseEstimate = poseEstimate;
             this.standardDeviations = standardDeviations;
         }
+    }
+
+    public boolean hasValidMeasurement() {
+        return lastMeasurement.isPresent();
+    }
+
+    public Optional<Pose2d> getLastEstimatedPose() {
+        return lastMeasurement.map(m -> m.poseEstimate.pose);
+    }
+
+    public long getLastTagCount() {
+        return lastMeasurement.map(m -> (long) m.poseEstimate.tagCount).orElse(0L);
+    }
+
+    public double getLastTimestampSeconds() {
+        return lastMeasurement.map(m -> m.poseEstimate.timestampSeconds).orElse(0.0);
+    }
+
+    public double getLastStdDevX() {
+        return lastMeasurement.map(m -> m.standardDeviations.get(0, 0)).orElse(0.0);
+    }
+
+    public double getLastStdDevY() {
+        return lastMeasurement.map(m -> m.standardDeviations.get(1, 0)).orElse(0.0);
+    }
+
+    public double getLastStdDevTheta() {
+        return lastMeasurement.map(m -> m.standardDeviations.get(2, 0)).orElse(0.0);
     }
 }

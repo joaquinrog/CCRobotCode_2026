@@ -19,6 +19,7 @@ import frc.robot.Constants.Driving;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.SubsystemCommands;
+import frc.robot.dashboard.Dashboard;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
@@ -52,6 +53,15 @@ public class RobotContainer {
 
     private final CommandXboxController driver = new CommandXboxController(0);
 
+    private final Dashboard dashboard = new Dashboard(
+            swerve,
+            shooter,
+            hood,
+            intake,
+            floor,
+            feeder,
+            limelight);
+
     private final AutoRoutines autoRoutines = new AutoRoutines(
             swerve,
             intake,
@@ -60,7 +70,8 @@ public class RobotContainer {
             shooter,
             hood,
             hanger,
-            limelight);
+            limelight,
+            dashboard);
     private final SubsystemCommands subsystemCommands = new SubsystemCommands(
             swerve,
             intake,
@@ -69,6 +80,7 @@ public class RobotContainer {
             shooter,
             hood,
             hanger,
+            dashboard,
             () -> -driver.getLeftY(),
             () -> -driver.getLeftX());
 
@@ -76,6 +88,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        dashboard.init();
         configureBindings();
         autoRoutines.configure();
         swerve.registerTelemetry(swerveTelemetry::telemeterize);
@@ -103,16 +116,16 @@ public class RobotContainer {
                 .onTrue(intake.homingCommand())
                 .onTrue(hanger.homingCommand());
 
-                
         driver.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
         driver.rightBumper().whileTrue(subsystemCommands.shootManually());
         driver.leftTrigger().whileTrue(intake.intakeCommand());
         driver.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
 
-         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        //driver.povUp().onTrue(intake.runOnce(() -> intake.set(Intake.Position.INTAKE)));
-         driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
-        //driver.povDown().onTrue(feeder.runOnce(() -> feeder.setPercentOutput(-0.5)));
+        driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
+        // driver.povUp().onTrue(intake.runOnce(() ->
+        // intake.set(Intake.Position.INTAKE)));
+        driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
+        // driver.povDown().onTrue(feeder.runOnce(() -> feeder.setPercentOutput(-0.5)));
     }
 
     private void configureManualDriveBindings() {
@@ -127,6 +140,10 @@ public class RobotContainer {
         driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
         driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+    }
+
+    public void dashboardPeriodic() {
+        dashboard.periodic();
     }
 
     private Command updateVisionCommand() {

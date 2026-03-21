@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.dashboard.Dashboard;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hanger;
@@ -20,6 +21,7 @@ public final class SubsystemCommands {
     private final Shooter shooter;
     private final Hood hood;
     private final Hanger hanger;
+    private final Dashboard dashboard;
 
     private final DoubleSupplier forwardInput;
     private final DoubleSupplier leftInput;
@@ -32,6 +34,7 @@ public final class SubsystemCommands {
             Shooter shooter,
             Hood hood,
             Hanger hanger,
+            Dashboard dashboard,
             DoubleSupplier forwardInput,
             DoubleSupplier leftInput) {
         this.swerve = swerve;
@@ -41,6 +44,8 @@ public final class SubsystemCommands {
         this.shooter = shooter;
         this.hood = hood;
         this.hanger = hanger;
+
+        this.dashboard = dashboard;
 
         this.forwardInput = forwardInput;
         this.leftInput = leftInput;
@@ -53,7 +58,8 @@ public final class SubsystemCommands {
             Feeder feeder,
             Shooter shooter,
             Hood hood,
-            Hanger hanger) {
+            Hanger hanger,
+            Dashboard dashboard) {
         this(
                 swerve,
                 intake,
@@ -62,6 +68,7 @@ public final class SubsystemCommands {
                 shooter,
                 hood,
                 hanger,
+                dashboard,
                 () -> 0,
                 () -> 0);
     }
@@ -70,13 +77,46 @@ public final class SubsystemCommands {
         final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(swerve, forwardInput, leftInput);
         final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood,
                 () -> swerve.getState().Pose);
-        return Commands.parallel(
-                aimAndDriveCommand,
-                Commands.waitSeconds(0.25)
-                        .andThen(prepareShotCommand),
-                Commands.waitUntil(() -> aimAndDriveCommand.isAimed() && prepareShotCommand.isReadyToShoot())
-                        .andThen(feed()));
+
+        return Commands.sequence(
+                Commands.runOnce(() -> {
+                    dashboard.setLaunchAllowed(false);
+                    dashboard.setLaunchBlockReason("Aiming + spinup");
+                    dashboard.setAutoWaitingOn("AimAndShotReady");
+                }),
+                Commands.parallel(
+                        aimAndDriveCommand,
+                        Commands.waitSeconds(0.25).andThen(prepareShotCommand)),
+                Commands.waitUntil(() -> aimAndDriveCommand.isAimed() && prepareShotCommand.isReadyToShoot()),
+                Commands.runOnce(() -> {
+                    dashboard.clearAutoWaitingOn();
+                    dashboard.setLaunchAllowed(true);
+                    dashboard.setLaunchBlockReason("");
+                }),
+                feed())
+                .finallyDo(interrupted -> {
+                    dashboard.setLaunchAllowed(false);
+                    if (interrupted) {
+                        dashboard.setLaunchBlockReason("Interrupted");
+                    }
+                });
     }
+    /*
+     * public Command aimAndShoot() {
+     * final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(swerve,
+     * forwardInput, leftInput);
+     * final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter,
+     * hood,
+     * () -> swerve.getState().Pose);
+     * return Commands.parallel(
+     * aimAndDriveCommand,
+     * Commands.waitSeconds(0.25)
+     * .andThen(prepareShotCommand),
+     * Commands.waitUntil(() -> aimAndDriveCommand.isAimed() &&
+     * prepareShotCommand.isReadyToShoot())
+     * .andThen(feed()));
+     * }
+     */
 
     /*
      * public Command shootManually() {
@@ -87,7 +127,7 @@ public final class SubsystemCommands {
      */
 
     public Command shootManually() {
-        return shooter.dashboardSpinUpCommand().andThen(feed()).handleInterrupt(() -> shooter.stop());
+        return shooter.spinUpCommand().andThen(feed()).handleInterrupt(() -> shooter.stop());
     }
 
     private Command feed() {

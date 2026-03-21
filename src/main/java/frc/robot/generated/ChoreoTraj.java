@@ -24,7 +24,35 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj OutpostAndDepotTrajectory = new ChoreoTraj(
+    public static final ChoreoTraj NeutralZoneLeftTrajectory = new ChoreoTraj(
+	    "NeutralZoneLeftTrajectory",
+	    OptionalInt.empty(),
+	    10.05408,
+	    new Pose2d(3.445, 5.664, Rotation2d.fromRadians(-1.058)),
+	    new Pose2d(0.941, 3.564, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj NeutralZoneLeftTrajectory$0 = new ChoreoTraj(
+	    "NeutralZoneLeftTrajectory",
+	    OptionalInt.of(0),
+	    1.63032,
+	    new Pose2d(3.445, 5.664, Rotation2d.fromRadians(-1.058)),
+	    new Pose2d(5.858, 5.38, Rotation2d.fromRadians(-0.896))
+	);
+	public static final ChoreoTraj NeutralZoneLeftTrajectory$1 = new ChoreoTraj(
+	    "NeutralZoneLeftTrajectory",
+	    OptionalInt.of(1),
+	    4.96117,
+	    new Pose2d(5.858, 5.38, Rotation2d.fromRadians(-0.896)),
+	    new Pose2d(2.498, 4.035, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj NeutralZoneLeftTrajectory$2 = new ChoreoTraj(
+	    "NeutralZoneLeftTrajectory",
+	    OptionalInt.of(2),
+	    3.4625900000000005,
+	    new Pose2d(2.498, 4.035, Rotation2d.fromRadians(0)),
+	    new Pose2d(0.941, 3.564, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj OutpostAndDepotTrajectory = new ChoreoTraj(
 	    "OutpostAndDepotTrajectory",
 	    OptionalInt.empty(),
 	    11.35632,
@@ -59,49 +87,21 @@ public record ChoreoTraj(
 	    new Pose2d(2.498, 4.035, Rotation2d.fromRadians(0)),
 	    new Pose2d(0.941, 3.564, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj NeutralZoneLeftTrajectory = new ChoreoTraj(
-	    "NeutralZoneLeftTrajectory",
-	    OptionalInt.empty(),
-	    10.05408,
-	    new Pose2d(3.445, 5.664, Rotation2d.fromRadians(-1.058)),
-	    new Pose2d(0.941, 3.564, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj NeutralZoneLeftTrajectory$0 = new ChoreoTraj(
-	    "NeutralZoneLeftTrajectory",
-	    OptionalInt.of(0),
-	    1.63032,
-	    new Pose2d(3.445, 5.664, Rotation2d.fromRadians(-1.058)),
-	    new Pose2d(5.858, 5.38, Rotation2d.fromRadians(-0.896))
-	);
-	public static final ChoreoTraj NeutralZoneLeftTrajectory$1 = new ChoreoTraj(
-	    "NeutralZoneLeftTrajectory",
-	    OptionalInt.of(1),
-	    4.96117,
-	    new Pose2d(5.858, 5.38, Rotation2d.fromRadians(-0.896)),
-	    new Pose2d(2.498, 4.035, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj NeutralZoneLeftTrajectory$2 = new ChoreoTraj(
-	    "NeutralZoneLeftTrajectory",
-	    OptionalInt.of(2),
-	    3.4625900000000005,
-	    new Pose2d(2.498, 4.035, Rotation2d.fromRadians(0)),
-	    new Pose2d(0.941, 3.564, Rotation2d.fromRadians(3.142))
-	);
 
     /**
      * A map between trajectory names and their corresponding data.
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("OutpostAndDepotTrajectory", OutpostAndDepotTrajectory),
+    	Map.entry("NeutralZoneLeftTrajectory", NeutralZoneLeftTrajectory),
+		Map.entry("NeutralZoneLeftTrajectory$0", NeutralZoneLeftTrajectory$0),
+		Map.entry("NeutralZoneLeftTrajectory$1", NeutralZoneLeftTrajectory$1),
+		Map.entry("NeutralZoneLeftTrajectory$2", NeutralZoneLeftTrajectory$2),
+		Map.entry("OutpostAndDepotTrajectory", OutpostAndDepotTrajectory),
 		Map.entry("OutpostAndDepotTrajectory$0", OutpostAndDepotTrajectory$0),
 		Map.entry("OutpostAndDepotTrajectory$1", OutpostAndDepotTrajectory$1),
 		Map.entry("OutpostAndDepotTrajectory$2", OutpostAndDepotTrajectory$2),
-		Map.entry("OutpostAndDepotTrajectory$3", OutpostAndDepotTrajectory$3),
-		Map.entry("NeutralZoneLeftTrajectory", NeutralZoneLeftTrajectory),
-		Map.entry("NeutralZoneLeftTrajectory$0", NeutralZoneLeftTrajectory$0),
-		Map.entry("NeutralZoneLeftTrajectory$1", NeutralZoneLeftTrajectory$1),
-		Map.entry("NeutralZoneLeftTrajectory$2", NeutralZoneLeftTrajectory$2)
+		Map.entry("OutpostAndDepotTrajectory$3", OutpostAndDepotTrajectory$3)
     );
 
     /**
