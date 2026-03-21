@@ -86,6 +86,7 @@ public final class Dashboard {
     private final BooleanPublisher hoodReadyPub = root.getBooleanTopic("Launch/HoodReady").publish();
     private final BooleanPublisher launchAllowedPub = root.getBooleanTopic("Launch/Allowed").publish();
     private final StringPublisher launchBlockReasonPub = root.getStringTopic("Launch/BlockReason").publish();
+    private final StringPublisher launchWaitingOnPub = root.getStringTopic("Launch/WaitingOn").publish();
 
     // ================= Vision =================
     private final BooleanPublisher visionValidPub = root.getBooleanTopic("Vision/HasMeasurement").publish();
@@ -129,6 +130,7 @@ public final class Dashboard {
 
     private boolean launchAllowed = false;
     private String launchBlockReason = "";
+    private String launchWaitingOn = "";
 
     private double autoStateStartSec = Timer.getFPGATimestamp();
 
@@ -174,6 +176,7 @@ public final class Dashboard {
         publishString("Auto/LastMarker", autoMarkerPub, autoMarker);
 
         publishString("Launch/BlockReason", launchBlockReasonPub, launchBlockReason);
+        publishString("Launch/WaitingOn", launchWaitingOnPub, launchWaitingOn);
 
         publishString("Mechanisms/IntakeCommand", intakeCmdPub, "None");
         publishString("Mechanisms/FloorCommand", floorCmdPub, "None");
@@ -292,6 +295,7 @@ public final class Dashboard {
 
         launchAllowedPub.set(launchAllowed);
         publishString("Launch/BlockReason", launchBlockReasonPub, launchBlockReason);
+        publishString("Launch/WaitingOn", launchWaitingOnPub, launchWaitingOn);
 
         // Health heartbeat
         healthLastUpdatePub.set(now);
@@ -390,7 +394,7 @@ public final class Dashboard {
         return name != null ? name : "UnnamedCommand";
     }
 
-    // ---------------- Public setters used by robot code ----------------
+    // ================ Public setters used by robot code ================
 
     public void setAutoSelected(String name) {
         this.autoSelected = safeString(name, "None");
@@ -446,6 +450,14 @@ public final class Dashboard {
 
     public void setLaunchBlockReason(String reason) {
         this.launchBlockReason = safeString(reason, "");
+    }
+
+    public void setLaunchWaitingOn(String reason) {
+        this.launchWaitingOn = safeString(reason, "");
+    }
+
+    public void clearLaunchWaitingOn() {
+        this.launchWaitingOn = "";
     }
 
     public void setGameDataValid(boolean valid) {

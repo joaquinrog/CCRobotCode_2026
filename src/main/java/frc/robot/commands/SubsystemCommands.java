@@ -75,29 +75,35 @@ public final class SubsystemCommands {
 
     public Command aimAndShoot() {
         final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(swerve, forwardInput, leftInput);
-        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(shooter, hood,
+        final PrepareShotCommand prepareShotCommand = new PrepareShotCommand(
+                shooter,
+                hood,
                 () -> swerve.getState().Pose);
 
         return Commands.sequence(
                 Commands.runOnce(() -> {
                     dashboard.setLaunchAllowed(false);
                     dashboard.setLaunchBlockReason("Aiming + spinup");
-                    dashboard.setAutoWaitingOn("AimAndShotReady");
+                    dashboard.setLaunchWaitingOn("AimAndShotReady");
                 }),
                 Commands.parallel(
                         aimAndDriveCommand,
                         Commands.waitSeconds(0.25).andThen(prepareShotCommand)),
                 Commands.waitUntil(() -> aimAndDriveCommand.isAimed() && prepareShotCommand.isReadyToShoot()),
                 Commands.runOnce(() -> {
-                    dashboard.clearAutoWaitingOn();
                     dashboard.setLaunchAllowed(true);
                     dashboard.setLaunchBlockReason("");
+                    dashboard.clearLaunchWaitingOn();
                 }),
                 feed())
                 .finallyDo(interrupted -> {
                     dashboard.setLaunchAllowed(false);
+                    dashboard.clearLaunchWaitingOn();
+
                     if (interrupted) {
                         dashboard.setLaunchBlockReason("Interrupted");
+                    } else {
+                        dashboard.setLaunchBlockReason("");
                     }
                 });
     }
