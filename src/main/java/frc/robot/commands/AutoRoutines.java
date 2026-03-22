@@ -262,7 +262,7 @@ public final class AutoRoutines {
                                                 })));
 
                 return routine;
-        }       
+        }
         /*
          * private AutoRoutine outpostAndDepotRoutine() {
          * final AutoRoutine routine = autoFactory.newRoutine("Outpost and Depot");
