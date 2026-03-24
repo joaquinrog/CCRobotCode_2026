@@ -80,22 +80,24 @@ public final class SubsystemCommands {
                 hood,
                 () -> swerve.getState().Pose);
 
-        return Commands.sequence(
-                Commands.runOnce(() -> {
-                    dashboard.setLaunchAllowed(false);
-                    dashboard.setLaunchBlockReason("Aiming + spinup");
-                    dashboard.setLaunchWaitingOn("AimAndShotReady");
-                }),
-                Commands.parallel(
-                        aimAndDriveCommand,
-                        Commands.waitSeconds(0.25).andThen(prepareShotCommand)),
-                Commands.waitUntil(() -> aimAndDriveCommand.isAimed() && prepareShotCommand.isReadyToShoot()),
-                Commands.runOnce(() -> {
-                    dashboard.setLaunchAllowed(true);
-                    dashboard.setLaunchBlockReason("");
-                    dashboard.clearLaunchWaitingOn();
-                }),
-                feed())
+        return Commands.parallel(
+                aimAndDriveCommand,
+                Commands.waitSeconds(0.25)
+                        .andThen(prepareShotCommand),
+                Commands.sequence(
+                        Commands.runOnce(() -> {
+                            dashboard.setLaunchAllowed(false);
+                            dashboard.setLaunchBlockReason("Aiming + spinup");
+                            dashboard.setLaunchWaitingOn("AimAndShotReady");
+                        }),
+                        Commands.waitUntil(() -> aimAndDriveCommand.isAimed()
+                                && prepareShotCommand.isReadyToShoot()),
+                        Commands.runOnce(() -> {
+                            dashboard.setLaunchAllowed(true);
+                            dashboard.setLaunchBlockReason("");
+                            dashboard.clearLaunchWaitingOn();
+                        }),
+                        feed()))
                 .finallyDo(interrupted -> {
                     dashboard.setLaunchAllowed(false);
                     dashboard.clearLaunchWaitingOn();
