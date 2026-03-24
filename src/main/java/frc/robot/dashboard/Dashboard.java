@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static edu.wpi.first.units.Units.Meters;
+
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.Landmarks;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
@@ -80,6 +85,9 @@ public final class Dashboard {
     private final DoublePublisher shooterTargetPub = root.getDoubleTopic("Launch/ShooterTargetRPM").publish();
     private final DoublePublisher shooterActualPub = root.getDoubleTopic("Launch/ShooterActualRPM").publish();
     private final DoublePublisher shooterErrorPub = root.getDoubleTopic("Launch/ShooterErrorRPM").publish();
+
+    private final DoublePublisher distanceToHubMetersPub = root.getDoubleTopic("Launch/DistanceToHubMeters").publish();
+
     private final DoublePublisher hoodTargetPub = root.getDoubleTopic("Launch/HoodTarget").publish();
     private final DoublePublisher hoodActualPub = root.getDoubleTopic("Launch/HoodActual").publish();
     private final BooleanPublisher shooterReadyPub = root.getBooleanTopic("Launch/ShooterReady").publish();
@@ -215,6 +223,8 @@ public final class Dashboard {
         poseXPub.set(safeDouble(pose.getX()));
         poseYPub.set(safeDouble(pose.getY()));
         poseThetaDegPub.set(safeDouble(pose.getRotation().getDegrees()));
+
+        distanceToHubMetersPub.set(getDistanceToHubMeters(pose));
 
         // Target pose + error
         hasTargetPosePub.set(targetPose.isPresent());
@@ -371,6 +381,12 @@ public final class Dashboard {
 
     private static Pose2d safePose(Pose2d pose) {
         return pose != null ? pose : new Pose2d();
+    }
+
+    private double getDistanceToHubMeters(Pose2d robotPose) {
+        final Translation2d robotPosition = safePose(robotPose).getTranslation();
+        final Translation2d hubPosition = Landmarks.hubPosition();
+        return safeDouble(Meters.of(robotPosition.getDistance(hubPosition)).in(Meters));
     }
 
     private String currentMode() {
