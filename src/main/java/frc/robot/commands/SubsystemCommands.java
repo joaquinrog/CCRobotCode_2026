@@ -138,6 +138,10 @@ public final class SubsystemCommands {
         return shooter.spinUpCommand().andThen(feed()).handleInterrupt(() -> shooter.stop());
     }
 
+    public Command shootDashboardManually() {
+        return shooter.dashboardSpinUpCommand().andThen(feed()).handleInterrupt(() -> shooter.stop());
+    }
+
     private Command feed() {
         return Commands.sequence(
                 Commands.waitSeconds(0.25),

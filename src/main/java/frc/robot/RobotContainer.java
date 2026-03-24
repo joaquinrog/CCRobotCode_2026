@@ -140,6 +140,8 @@ public class RobotContainer {
         driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
         driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+
+        driver.start().whileTrue(subsystemCommands.shootManually());
     }
 
     public void dashboardPeriodic() {
