@@ -16,6 +16,9 @@ import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$3;
 import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory$1;
 
+import static frc.robot.generated.ChoreoTraj.NZRightTrajectory$0;
+import static frc.robot.generated.ChoreoTraj.NZRightTrajectory$1;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -81,6 +84,7 @@ public final class AutoRoutines {
         public void configure() {
                 autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
                 autoChooser.addRoutine("NZ Left No Climb", this::nzLeftNoClimbRoutine);
+                autoChooser.addRoutine("NZ Right No Climb", this::nzRightNoClimbRoutine);
                 SmartDashboard.putData("Auto Chooser", autoChooser);
                 RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
         }
@@ -111,6 +115,73 @@ public final class AutoRoutines {
                                         dashboard.setAutoMarker("ReachedFirstStop");
                                         dashboard.setAutoState("IntakeAndDriveToShoot");
                                         dashboard.setAutoPath("NZLeftTrajectory$1");
+                                }));
+
+                // Desde el primer stop, baja intake y lo deja corriendo
+                startToFirstStop.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                                                intake.intakeCommand()));
+
+                // Desde el primer stop, también arranca el siguiente tramo
+                startToFirstStop.done().onTrue(firstStopToShootingPose.cmd());
+
+                // OJO: NO usamos limelight.idle() aquí, para que siga corriendo el default
+                // updateVisionCommand() y vaya corrigiendo la pose mientras cruza el bump
+
+                // Prepara shooter y hood durante el tramo final
+                firstStopToShootingPose.atTime(0.5).onTrue(
+                                Commands.parallel(
+                                                shooter.spinUpCommand(2600),
+                                                hood.positionCommand(0.32)));
+
+                // Al llegar al shooting pose: aim + shoot, dejando que el intake siga hasta que
+                // el feed/agitate lo reemplace y el timeout lo apague
+                firstStopToShootingPose.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("IntakeAndDriveToShoot");
+                                                        dashboard.setAutoMarker("ReachedShootingPose");
+                                                        dashboard.setAutoState("AimAndShoot");
+                                                        dashboard.setAutoWaitingOn("LaunchSequence");
+                                                }),
+                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("AimAndShoot");
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoMarker("RoutineComplete");
+                                                        dashboard.setAutoState("Done");
+                                                })));
+
+                return routine;
+        }
+
+        private AutoRoutine nzRightNoClimbRoutine() {
+                final AutoRoutine routine = autoFactory.newRoutine("NZ Right No Climb");
+
+                final AutoTrajectory startToFirstStop = NZRightTrajectory$0.asAutoTraj(routine);
+                final AutoTrajectory firstStopToShootingPose = NZRightTrajectory$1.asAutoTraj(routine);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.setAutoSelected("NZ Right No Climb");
+                                                        dashboard.clearAutoFailure();
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoPath("NZRightTrajectory$0");
+                                                        dashboard.setAutoMarker("RoutineStart");
+                                                        dashboard.setAutoState("StartToFirstStop");
+                                                }),
+                                                startToFirstStop.resetOdometry(),
+                                                startToFirstStop.cmd()));
+
+                // Cuando llega al primer stop, actualiza breadcrumbs
+                startToFirstStop.done().onTrue(
+                                Commands.runOnce(() -> {
+                                        dashboard.completeAutoState("StartToFirstStop");
+                                        dashboard.setAutoMarker("ReachedFirstStop");
+                                        dashboard.setAutoState("IntakeAndDriveToShoot");
+                                        dashboard.setAutoPath("NZRightTrajectory$1");
                                 }));
 
                 // Desde el primer stop, baja intake y lo deja corriendo
