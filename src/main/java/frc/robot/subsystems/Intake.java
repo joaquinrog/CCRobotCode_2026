@@ -29,10 +29,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Driving;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
-import frc.robot.commands.ManualDriveCommand;
 
 public class Intake extends SubsystemBase {
     public enum Speed {
@@ -163,26 +161,6 @@ public class Intake extends SubsystemBase {
                     set(Speed.INTAKE);
                 },
                 () -> set(Speed.STOP));
-    }
-
-    /**
-     * Runs the intake and simultaneously throttles swerve drive speed to
-     * {@code Constants.Driving.kIntakingSpeedMultiplier} for better accuracy
-     * and battery efficiency. Full speed is restored when the command ends.
-     *
-     * @param driveCommand The active {@link ManualDriveCommand} to throttle.
-     */
-    public Command intakeCommand(ManualDriveCommand driveCommand) {
-        return startEnd(
-                () -> {
-                    set(Position.INTAKE);
-                    set(Speed.INTAKE);
-                    driveCommand.setSpeedMultiplier(Driving.kIntakingSpeedMultiplier);
-                },
-                () -> {
-                    set(Speed.STOP);
-                    driveCommand.setSpeedMultiplier(1.0);
-                });
     }
 
     public Command agitateCommand() {

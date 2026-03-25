@@ -116,7 +116,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("LowerIntakeAndDriveToShoot");
                                                         dashboard.setAutoPath("NZLeftTrajectory$1");
                                                 }),
-                                                Commands.waitSeconds(0.2),
+                                                Commands.waitSeconds(0.5),
                                                 Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                                                 Commands.waitSeconds(0.2),
                                                 Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));

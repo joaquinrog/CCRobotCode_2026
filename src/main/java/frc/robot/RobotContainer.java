@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
+import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -28,6 +29,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import frc.util.DriveModeManager;
 import frc.util.SwerveTelemetry;
 
 /**
@@ -49,6 +51,7 @@ public class RobotContainer {
     private final Hanger hanger = new Hanger();
     private final Limelight limelight = new Limelight("limelight");
 
+    private final DriveModeManager driveModeManager = new DriveModeManager();
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
 
     private final CommandXboxController driver = new CommandXboxController(0);
@@ -119,7 +122,7 @@ public class RobotContainer {
 
         driver.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
         driver.rightBumper().whileTrue(subsystemCommands.shootManually());
-        driver.leftTrigger().whileTrue(intake.intakeCommand(manualDriveCommand));
+        driver.leftTrigger().whileTrue(intakeWithDriveSlowModeCommand());
         driver.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
 
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
@@ -129,13 +132,28 @@ public class RobotContainer {
         // driver.povDown().onTrue(feeder.runOnce(() -> feeder.setPercentOutput(-0.5)));
     }
 
+    private Command intakeWithDriveSlowModeCommand() {
+        return Commands.startEnd(
+                () -> driveModeManager.setIntakePrecisionEnabled(true),
+                () -> driveModeManager.setIntakePrecisionEnabled(false))
+                .alongWith(intake.intakeCommand());
+    }
+
     private void configureManualDriveBindings() {
+        final DoubleSupplier translationSpeedMultiplierSupplier = driveModeManager::getTranslationSpeedMultiplier;
+
+        final DoubleSupplier rotationSpeedMultiplierSupplier = driveModeManager::getRotationSpeedMultiplier;
+
         manualDriveCommand = new ManualDriveCommand(
                 swerve,
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
-                () -> -driver.getRightX());
+                () -> -driver.getRightX(),
+                translationSpeedMultiplierSupplier,
+                rotationSpeedMultiplierSupplier);
+
         swerve.setDefaultCommand(manualDriveCommand);
+
         driver.a().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.k180deg)));
         driver.b().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCW_90deg)));
         driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
