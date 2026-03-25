@@ -150,6 +150,27 @@ public record ChoreoTraj(
 	    new Pose2d(5.798, 5.596, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(2.672, 5.005, Rotation2d.fromRadians(-0.547))
 	);
+	public static final ChoreoTraj NZRightDesmadre = new ChoreoTraj(
+	    "NZRightDesmadre",
+	    OptionalInt.empty(),
+	    12.03161,
+	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(2.609, 3.042, Rotation2d.fromRadians(0.547))
+	);
+	public static final ChoreoTraj NZRightDesmadre$0 = new ChoreoTraj(
+	    "NZRightDesmadre",
+	    OptionalInt.of(0),
+	    2.84488,
+	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(5.795, 2.502, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj NZRightDesmadre$1 = new ChoreoTraj(
+	    "NZRightDesmadre",
+	    OptionalInt.of(1),
+	    9.18673,
+	    new Pose2d(5.795, 2.502, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(2.609, 3.042, Rotation2d.fromRadians(0.547))
+	);
 	public static final ChoreoTraj NZRightTrajectory_Center = new ChoreoTraj(
 	    "NZRightTrajectory_Center",
 	    OptionalInt.empty(),
@@ -195,6 +216,9 @@ public record ChoreoTraj(
 		Map.entry("NZLeftTrajectory_Center", NZLeftTrajectory_Center),
 		Map.entry("NZLeftTrajectory_Center$0", NZLeftTrajectory_Center$0),
 		Map.entry("NZLeftTrajectory_Center$1", NZLeftTrajectory_Center$1),
+		Map.entry("NZRightDesmadre", NZRightDesmadre),
+		Map.entry("NZRightDesmadre$0", NZRightDesmadre$0),
+		Map.entry("NZRightDesmadre$1", NZRightDesmadre$1),
 		Map.entry("NZRightTrajectory_Center", NZRightTrajectory_Center),
 		Map.entry("NZRightTrajectory_Center$0", NZRightTrajectory_Center$0),
 		Map.entry("NZRightTrajectory_Center$1", NZRightTrajectory_Center$1)

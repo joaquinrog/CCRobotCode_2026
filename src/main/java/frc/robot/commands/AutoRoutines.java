@@ -19,6 +19,12 @@ import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory$1;
 import static frc.robot.generated.ChoreoTraj.NZRightTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.NZRightTrajectory$1;
 
+import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory_Center$0;
+import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory_Center$1;
+
+import static frc.robot.generated.ChoreoTraj.NZRightTrajectory_Center$0;
+import static frc.robot.generated.ChoreoTraj.NZRightTrajectory_Center$1;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -85,6 +91,9 @@ public final class AutoRoutines {
                 autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
                 autoChooser.addRoutine("NZ Left No Climb", this::nzLeftNoClimbRoutine);
                 autoChooser.addRoutine("NZ Right No Climb", this::nzRightNoClimbRoutine);
+                autoChooser.addRoutine("NZ Left Center No Climb", this::nzLeftCenterNoClimbRoutine);
+                autoChooser.addRoutine("NZ Right Center No Climb", this::nzRightCenterNoClimbRoutine);
+
                 SmartDashboard.putData("Auto Chooser", autoChooser);
                 RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
         }
@@ -143,6 +152,61 @@ public final class AutoRoutines {
                 return routine;
         }
 
+        private AutoRoutine nzLeftCenterNoClimbRoutine() {
+                final AutoRoutine routine = autoFactory.newRoutine("NZ Left Center No Climb");
+
+                final AutoTrajectory startToFirstStop = NZLeftTrajectory_Center$0.asAutoTraj(routine);
+                final AutoTrajectory firstStopToShootingPose = NZLeftTrajectory_Center$1.asAutoTraj(routine);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.setAutoSelected("NZ Left Center No Climb");
+                                                        dashboard.clearAutoFailure();
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoPath("NZLeftTrajectory_Center$0");
+                                                        dashboard.setAutoMarker("RoutineStart");
+                                                        dashboard.setAutoState("StartToFirstStop");
+                                                }),
+                                                startToFirstStop.resetOdometry(),
+                                                startToFirstStop.cmd()));
+
+                startToFirstStop.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("StartToFirstStop");
+                                                        dashboard.setAutoMarker("ReachedFirstStop");
+                                                        dashboard.setAutoState("LowerIntakeAndDriveToShoot");
+                                                        dashboard.setAutoPath("NZLeftTrajectory_Center$1");
+                                                }),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));
+
+                startToFirstStop.done().onTrue(intake.intakeCommand());
+
+                startToFirstStop.done().onTrue(firstStopToShootingPose.cmd());
+
+                firstStopToShootingPose.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("LowerIntakeAndDriveToShoot");
+                                                        dashboard.setAutoMarker("ReachedShootingPose");
+                                                        dashboard.setAutoState("AimAndShoot");
+                                                        dashboard.setAutoWaitingOn("LaunchSequence");
+                                                }),
+                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("AimAndShoot");
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoMarker("RoutineComplete");
+                                                        dashboard.setAutoState("Done");
+                                                })));
+
+                return routine;
+        }
+
         private AutoRoutine nzRightNoClimbRoutine() {
                 final AutoRoutine routine = autoFactory.newRoutine("NZ Right No Climb");
 
@@ -178,6 +242,61 @@ public final class AutoRoutines {
                 startToFirstStop.done().onTrue(intake.intakeCommand());
 
                 startToFirstStop.done().onTrue(firstStopToShootingPose.cmd());
+                firstStopToShootingPose.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("LowerIntakeAndDriveToShoot");
+                                                        dashboard.setAutoMarker("ReachedShootingPose");
+                                                        dashboard.setAutoState("AimAndShoot");
+                                                        dashboard.setAutoWaitingOn("LaunchSequence");
+                                                }),
+                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("AimAndShoot");
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoMarker("RoutineComplete");
+                                                        dashboard.setAutoState("Done");
+                                                })));
+
+                return routine;
+        }
+
+        private AutoRoutine nzRightCenterNoClimbRoutine() {
+                final AutoRoutine routine = autoFactory.newRoutine("NZ Right Center No Climb");
+
+                final AutoTrajectory startToFirstStop = NZRightTrajectory_Center$0.asAutoTraj(routine);
+                final AutoTrajectory firstStopToShootingPose = NZRightTrajectory_Center$1.asAutoTraj(routine);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.setAutoSelected("NZ Right Center No Climb");
+                                                        dashboard.clearAutoFailure();
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoPath("NZRightTrajectory_Center$0");
+                                                        dashboard.setAutoMarker("RoutineStart");
+                                                        dashboard.setAutoState("StartToFirstStop");
+                                                }),
+                                                startToFirstStop.resetOdometry(),
+                                                startToFirstStop.cmd()));
+
+                startToFirstStop.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("StartToFirstStop");
+                                                        dashboard.setAutoMarker("ReachedFirstStop");
+                                                        dashboard.setAutoState("LowerIntakeAndDriveToShoot");
+                                                        dashboard.setAutoPath("NZRightTrajectory_Center$1");
+                                                }),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));
+
+                startToFirstStop.done().onTrue(intake.intakeCommand());
+
+                startToFirstStop.done().onTrue(firstStopToShootingPose.cmd());
+
                 firstStopToShootingPose.done().onTrue(
                                 Commands.sequence(
                                                 Commands.runOnce(() -> {
