@@ -90,28 +90,28 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZLeftTrajectory = new ChoreoTraj(
 	    "NZLeftTrajectory",
 	    OptionalInt.empty(),
-	    10.90106,
-	    new Pose2d(3.398, 5.477, Rotation2d.fromRadians(-1)),
+	    10.57239,
+	    new Pose2d(3.427, 5.343, Rotation2d.fromRadians(-1)),
 	    new Pose2d(2.537, 4.754, Rotation2d.fromRadians(-0.441))
 	);
 	public static final ChoreoTraj NZLeftTrajectory$0 = new ChoreoTraj(
 	    "NZLeftTrajectory",
 	    OptionalInt.of(0),
-	    2.81093,
-	    new Pose2d(3.398, 5.477, Rotation2d.fromRadians(-1)),
+	    2.79909,
+	    new Pose2d(3.427, 5.343, Rotation2d.fromRadians(-1)),
 	    new Pose2d(5.745, 5.647, Rotation2d.fromRadians(-1))
 	);
 	public static final ChoreoTraj NZLeftTrajectory$1 = new ChoreoTraj(
 	    "NZLeftTrajectory",
 	    OptionalInt.of(1),
-	    8.090129999999998,
+	    7.773300000000001,
 	    new Pose2d(5.745, 5.647, Rotation2d.fromRadians(-1)),
 	    new Pose2d(2.537, 4.754, Rotation2d.fromRadians(-0.441))
 	);
 	public static final ChoreoTraj NZRightTrajectory = new ChoreoTraj(
 	    "NZRightTrajectory",
 	    OptionalInt.empty(),
-	    10.88534,
+	    10.53282,
 	    new Pose2d(3.489, 2.552, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(2.439, 3.276, Rotation2d.fromRadians(0.441))
 	);
@@ -125,9 +125,51 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZRightTrajectory$1 = new ChoreoTraj(
 	    "NZRightTrajectory",
 	    OptionalInt.of(1),
-	    8.1136,
+	    7.76108,
 	    new Pose2d(5.791, 2.518, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(2.439, 3.276, Rotation2d.fromRadians(0.441))
+	);
+	public static final ChoreoTraj NZLeftTrajectory_Center = new ChoreoTraj(
+	    "NZLeftTrajectory_Center",
+	    OptionalInt.empty(),
+	    8.89329,
+	    new Pose2d(3.427, 5.343, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(2.672, 5.005, Rotation2d.fromRadians(-0.547))
+	);
+	public static final ChoreoTraj NZLeftTrajectory_Center$0 = new ChoreoTraj(
+	    "NZLeftTrajectory_Center",
+	    OptionalInt.of(0),
+	    2.83568,
+	    new Pose2d(3.427, 5.343, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(5.798, 5.596, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj NZLeftTrajectory_Center$1 = new ChoreoTraj(
+	    "NZLeftTrajectory_Center",
+	    OptionalInt.of(1),
+	    6.05761,
+	    new Pose2d(5.798, 5.596, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(2.672, 5.005, Rotation2d.fromRadians(-0.547))
+	);
+	public static final ChoreoTraj NZRightTrajectory_Center = new ChoreoTraj(
+	    "NZRightTrajectory_Center",
+	    OptionalInt.empty(),
+	    10.18305,
+	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(2.609, 3.042, Rotation2d.fromRadians(0.547))
+	);
+	public static final ChoreoTraj NZRightTrajectory_Center$0 = new ChoreoTraj(
+	    "NZRightTrajectory_Center",
+	    OptionalInt.of(0),
+	    2.84488,
+	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(5.795, 2.502, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj NZRightTrajectory_Center$1 = new ChoreoTraj(
+	    "NZRightTrajectory_Center",
+	    OptionalInt.of(1),
+	    7.33817,
+	    new Pose2d(5.795, 2.502, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(2.609, 3.042, Rotation2d.fromRadians(0.547))
 	);
 
     /**
@@ -149,7 +191,13 @@ public record ChoreoTraj(
 		Map.entry("NZLeftTrajectory$1", NZLeftTrajectory$1),
 		Map.entry("NZRightTrajectory", NZRightTrajectory),
 		Map.entry("NZRightTrajectory$0", NZRightTrajectory$0),
-		Map.entry("NZRightTrajectory$1", NZRightTrajectory$1)
+		Map.entry("NZRightTrajectory$1", NZRightTrajectory$1),
+		Map.entry("NZLeftTrajectory_Center", NZLeftTrajectory_Center),
+		Map.entry("NZLeftTrajectory_Center$0", NZLeftTrajectory_Center$0),
+		Map.entry("NZLeftTrajectory_Center$1", NZLeftTrajectory_Center$1),
+		Map.entry("NZRightTrajectory_Center", NZRightTrajectory_Center),
+		Map.entry("NZRightTrajectory_Center$0", NZRightTrajectory_Center$0),
+		Map.entry("NZRightTrajectory_Center$1", NZRightTrajectory_Center$1)
     );
 
     /**

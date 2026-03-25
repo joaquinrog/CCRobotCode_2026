@@ -116,7 +116,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("LowerIntakeAndDriveToShoot");
                                                         dashboard.setAutoPath("NZLeftTrajectory$1");
                                                 }),
-                                                Commands.waitSeconds(1), // cambiar este si brownout
+                                                Commands.waitSeconds(0.2), // cambiar este si brownout
                                                 Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                                                 Commands.waitSeconds(0.2),
                                                 Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));
@@ -169,8 +169,8 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("LowerIntakeAndDriveToShoot");
                                                         dashboard.setAutoPath("NZRightTrajectory$1");
                                                 }),
-                                                
-                                                Commands.waitSeconds(1), // cambiar este si brownout
+
+                                                Commands.waitSeconds(0.2), // cambiar este si brownout
                                                 Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                                                 Commands.waitSeconds(0.2),
                                                 Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));
