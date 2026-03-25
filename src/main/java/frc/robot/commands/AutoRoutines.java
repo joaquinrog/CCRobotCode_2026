@@ -7,10 +7,14 @@ package frc.robot.commands;
 import static frc.robot.generated.ChoreoTraj.NeutralZoneLeftTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.NeutralZoneLeftTrajectory$1;
 import static frc.robot.generated.ChoreoTraj.NeutralZoneLeftTrajectory$2;
+
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$0;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$1;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$2;
 import static frc.robot.generated.ChoreoTraj.OutpostAndDepotTrajectory$3;
+
+import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory$0;
+import static frc.robot.generated.ChoreoTraj.NZLeftTrajectory$1;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -76,11 +80,79 @@ public final class AutoRoutines {
 
         public void configure() {
                 autoChooser.addRoutine("Outpost and Depot", this::outpostAndDepotRoutine);
-                autoChooser.addRoutine("Neutral Zone Left", this::neutralZoneRoutine);
+                autoChooser.addRoutine("NZ Left No Climb", this::nzLeftNoClimbRoutine);
                 SmartDashboard.putData("Auto Chooser", autoChooser);
                 RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
         }
 
+        private AutoRoutine nzLeftNoClimbRoutine() {
+                final AutoRoutine routine = autoFactory.newRoutine("NZ Left No Climb");
+
+                final AutoTrajectory startToFirstStop = NZLeftTrajectory$0.asAutoTraj(routine);
+                final AutoTrajectory firstStopToShootingPose = NZLeftTrajectory$1.asAutoTraj(routine);
+
+                routine.active().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.setAutoSelected("NZ Left No Climb");
+                                                        dashboard.clearAutoFailure();
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoPath("NZLeftTrajectory$0");
+                                                        dashboard.setAutoMarker("RoutineStart");
+                                                        dashboard.setAutoState("StartToFirstStop");
+                                                }),
+                                                startToFirstStop.resetOdometry(),
+                                                startToFirstStop.cmd()));
+
+                // Cuando llega al primer stop, actualiza breadcrumbs
+                startToFirstStop.done().onTrue(
+                                Commands.runOnce(() -> {
+                                        dashboard.completeAutoState("StartToFirstStop");
+                                        dashboard.setAutoMarker("ReachedFirstStop");
+                                        dashboard.setAutoState("IntakeAndDriveToShoot");
+                                        dashboard.setAutoPath("NZLeftTrajectory$1");
+                                }));
+
+                // Desde el primer stop, baja intake y lo deja corriendo
+                startToFirstStop.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
+                                                intake.intakeCommand()));
+
+                // Desde el primer stop, también arranca el siguiente tramo
+                startToFirstStop.done().onTrue(firstStopToShootingPose.cmd());
+
+                // OJO: NO usamos limelight.idle() aquí, para que siga corriendo el default
+                // updateVisionCommand() y vaya corrigiendo la pose mientras cruza el bump
+
+                // Prepara shooter y hood durante el tramo final
+                firstStopToShootingPose.atTime(0.5).onTrue(
+                                Commands.parallel(
+                                                shooter.spinUpCommand(2600),
+                                                hood.positionCommand(0.32)));
+
+                // Al llegar al shooting pose: aim + shoot, dejando que el intake siga hasta que
+                // el feed/agitate lo reemplace y el timeout lo apague
+                firstStopToShootingPose.done().onTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("IntakeAndDriveToShoot");
+                                                        dashboard.setAutoMarker("ReachedShootingPose");
+                                                        dashboard.setAutoState("AimAndShoot");
+                                                        dashboard.setAutoWaitingOn("LaunchSequence");
+                                                }),
+                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("AimAndShoot");
+                                                        dashboard.clearAutoWaitingOn();
+                                                        dashboard.setAutoMarker("RoutineComplete");
+                                                        dashboard.setAutoState("Done");
+                                                })));
+
+                return routine;
+        }
+
+        @Deprecated(since = "2026-03", forRemoval = false)
         private AutoRoutine neutralZoneRoutine() {
                 final AutoRoutine routine = autoFactory.newRoutine("Neutral Zone");
 
@@ -263,51 +335,4 @@ public final class AutoRoutines {
 
                 return routine;
         }
-        /*
-         * private AutoRoutine outpostAndDepotRoutine() {
-         * final AutoRoutine routine = autoFactory.newRoutine("Outpost and Depot");
-         * final AutoTrajectory startToOutpost =
-         * OutpostAndDepotTrajectory$0.asAutoTraj(routine);
-         * final AutoTrajectory outpostToDepot =
-         * OutpostAndDepotTrajectory$1.asAutoTraj(routine);
-         * final AutoTrajectory depotToShootingPose =
-         * OutpostAndDepotTrajectory$2.asAutoTraj(routine);
-         * final AutoTrajectory shootingPoseToTower =
-         * OutpostAndDepotTrajectory$3.asAutoTraj(routine);
-         * 
-         * routine.active().onTrue(
-         * Commands.sequence(
-         * startToOutpost.resetOdometry(),
-         * startToOutpost.cmd()));
-         * 
-         * routine.observe(hanger::isHomed).onTrue(
-         * Commands.sequence(
-         * Commands.waitSeconds(0.5),
-         * intake.runOnce(() -> intake.set(Intake.Position.INTAKE))));
-         * 
-         * startToOutpost.doneDelayed(1).onTrue(outpostToDepot.cmd());
-         * 
-         * outpostToDepot.atTimeBeforeEnd(1).onTrue(intake.intakeCommand());
-         * outpostToDepot.doneDelayed(0.1).onTrue(depotToShootingPose.cmd());
-         * 
-         * depotToShootingPose.active().whileTrue(limelight.idle());
-         * depotToShootingPose.atTime(0.5).onTrue(
-         * Commands.parallel(
-         * shooter.spinUpCommand(2600),
-         * hood.positionCommand(0.32)));
-         * depotToShootingPose.done().onTrue(
-         * Commands.sequence(
-         * subsystemCommands.aimAndShoot()
-         * .withTimeout(5),
-         * shootingPoseToTower.cmd()));
-         * 
-         * shootingPoseToTower.active().whileTrue(limelight.idle());
-         * shootingPoseToTower.active().onTrue(hanger.positionCommand(Hanger.Position.
-         * HANGING));
-         * shootingPoseToTower.done().onTrue(hanger.positionCommand(Hanger.Position.HUNG
-         * ));
-         * 
-         * return routine;
-         * }
-         */
 }
