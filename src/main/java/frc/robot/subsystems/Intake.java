@@ -29,8 +29,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.Driving;
 import frc.robot.Constants.KrakenX60;
 import frc.robot.Ports;
+import frc.robot.commands.ManualDriveCommand;
 
 public class Intake extends SubsystemBase {
     public enum Speed {
@@ -86,52 +88,47 @@ public class Intake extends SubsystemBase {
 
     private void configurePivotMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.CounterClockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(70))
-                    .withSupplyCurrentLimitEnable(true)
-            )
-            .withFeedback(
-                new FeedbackConfigs()
-                    .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
-                    .withSensorToMechanismRatio(kPivotReduction)
-            )
-            .withMotionMagic(
-                new MotionMagicConfigs()
-                    .withMotionMagicCruiseVelocity(kMaxPivotSpeed)
-                    .withMotionMagicAcceleration(kMaxPivotSpeed.per(Second))
-            )
-            .withSlot0(
-                new Slot0Configs()
-                    .withKP(300)
-                    .withKI(0)
-                    .withKD(0)
-                    .withKV(12.0 / kMaxPivotSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
-            );
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.CounterClockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Brake))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(70))
+                                .withSupplyCurrentLimitEnable(true))
+                .withFeedback(
+                        new FeedbackConfigs()
+                                .withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor)
+                                .withSensorToMechanismRatio(kPivotReduction))
+                .withMotionMagic(
+                        new MotionMagicConfigs()
+                                .withMotionMagicCruiseVelocity(kMaxPivotSpeed)
+                                .withMotionMagicAcceleration(kMaxPivotSpeed.per(Second)))
+                .withSlot0(
+                        new Slot0Configs()
+                                .withKP(300)
+                                .withKI(0)
+                                .withKD(0)
+                                .withKV(12.0 / kMaxPivotSpeed.in(RotationsPerSecond)) // 12 volts when requesting max
+                                                                                      // RPS
+                );
         pivotMotor.getConfigurator().apply(config);
     }
 
     private void configureRollerMotor() {
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(70))
-                    .withSupplyCurrentLimitEnable(true)
-            );
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.Clockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Brake))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(70))
+                                .withSupplyCurrentLimitEnable(true));
         rollerMotor.getConfigurator().apply(config);
     }
 
@@ -143,72 +140,88 @@ public class Intake extends SubsystemBase {
 
     private void setPivotPercentOutput(double percentOutput) {
         pivotMotor.setControl(
-            pivotVoltageRequest
-                .withOutput(Volts.of(percentOutput * 12.0))
-        );
+                pivotVoltageRequest
+                        .withOutput(Volts.of(percentOutput * 12.0)));
     }
 
     public void set(Position position) {
         pivotMotor.setControl(
-            pivotMotionMagicRequest
-                .withPosition(position.angle())
-        );
+                pivotMotionMagicRequest
+                        .withPosition(position.angle()));
     }
 
     public void set(Speed speed) {
         rollerMotor.setControl(
-            rollerVoltageRequest
-                .withOutput(speed.voltage())
-        );
+                rollerVoltageRequest
+                        .withOutput(speed.voltage()));
     }
 
     public Command intakeCommand() {
         return startEnd(
-            () -> {
-                set(Position.INTAKE);
-                set(Speed.INTAKE);
-            },
-            () -> set(Speed.STOP)
-        );
+                () -> {
+                    set(Position.INTAKE);
+                    set(Speed.INTAKE);
+                },
+                () -> set(Speed.STOP));
+    }
+
+    /**
+     * Runs the intake and simultaneously throttles swerve drive speed to
+     * {@code Constants.Driving.kIntakingSpeedMultiplier} for better accuracy
+     * and battery efficiency. Full speed is restored when the command ends.
+     *
+     * @param driveCommand The active {@link ManualDriveCommand} to throttle.
+     */
+    public Command intakeCommand(ManualDriveCommand driveCommand) {
+        return startEnd(
+                () -> {
+                    set(Position.INTAKE);
+                    set(Speed.INTAKE);
+                    driveCommand.setSpeedMultiplier(Driving.kIntakingSpeedMultiplier);
+                },
+                () -> {
+                    set(Speed.STOP);
+                    driveCommand.setSpeedMultiplier(1.0);
+                });
     }
 
     public Command agitateCommand() {
         return runOnce(() -> set(Speed.INTAKE))
-            .andThen(
-                Commands.sequence(
-                    runOnce(() -> set(Position.AGITATE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance),
-                    runOnce(() -> set(Position.INTAKE)),
-                    Commands.waitUntil(this::isPositionWithinTolerance)
-                )
-                .repeatedly()
-            )
-            .handleInterrupt(() -> {
-                set(Position.INTAKE);
-                set(Speed.STOP);
-            });
+                .andThen(
+                        Commands.sequence(
+                                runOnce(() -> set(Position.AGITATE)),
+                                Commands.waitUntil(this::isPositionWithinTolerance),
+                                runOnce(() -> set(Position.INTAKE)),
+                                Commands.waitUntil(this::isPositionWithinTolerance))
+                                .repeatedly())
+                .handleInterrupt(() -> {
+                    set(Position.INTAKE);
+                    set(Speed.STOP);
+                });
     }
 
     public Command homingCommand() {
         return Commands.sequence(
-            runOnce(() -> setPivotPercentOutput(0.1)),
-            Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
-            runOnce(() -> {
-                pivotMotor.setPosition(Position.HOMED.angle());
-                isHomed = true;
-                set(Position.STOWED);
-            })
-        )
-        .unless(() -> isHomed)
-        .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
+                runOnce(() -> setPivotPercentOutput(0.1)),
+                Commands.waitUntil(() -> pivotMotor.getSupplyCurrent().getValue().in(Amps) > 6),
+                runOnce(() -> {
+                    pivotMotor.setPosition(Position.HOMED.angle());
+                    isHomed = true;
+                    set(Position.STOWED);
+                }))
+                .unless(() -> isHomed)
+                .withInterruptBehavior(InterruptionBehavior.kCancelIncoming);
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
+        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
+                null);
         builder.addDoubleProperty("Angle (degrees)", () -> pivotMotor.getPosition().getValue().in(Degrees), null);
         builder.addDoubleProperty("RPM", () -> rollerMotor.getVelocity().getValue().in(RPM), null);
-        builder.addDoubleProperty("Pivot Supply Current", () -> pivotMotor.getSupplyCurrent().getValue().in(Amps), null);
-        builder.addDoubleProperty("Roller Supply Current", () -> rollerMotor.getSupplyCurrent().getValue().in(Amps), null);
+        builder.addDoubleProperty("Pivot Supply Current", () -> pivotMotor.getSupplyCurrent().getValue().in(Amps),
+                null);
+        builder.addDoubleProperty("Roller Supply Current", () -> rollerMotor.getSupplyCurrent().getValue().in(Amps),
+                null);
     }
 }

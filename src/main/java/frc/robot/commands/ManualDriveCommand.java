@@ -40,29 +40,29 @@ public class ManualDriveCommand extends Command {
     private final SwerveRequest.Idle idleRequest = new SwerveRequest.Idle();
 
     private final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+            .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
 
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
-        .withRotationalDeadband(Driving.kPIDRotationDeadband)
-        .withMaxAbsRotationalRate(Driving.kMaxRotationalRate)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-        .withHeadingPID(5, 0, 0);
+            .withRotationalDeadband(Driving.kPIDRotationDeadband)
+            .withMaxAbsRotationalRate(Driving.kMaxRotationalRate)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+            .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
+            .withHeadingPID(5, 0, 0);
 
     private State currentState = State.IDLING;
     private Optional<Rotation2d> lockedHeading = Optional.empty();
     private Stopwatch headingLockStopwatch = new Stopwatch();
     private ManualDriveInput previousInput = new ManualDriveInput();
+    private double speedMultiplier = 1.0;
 
     public ManualDriveCommand(
-        Swerve swerve,
-        DoubleSupplier forwardInput,
-        DoubleSupplier leftInput,
-        DoubleSupplier rotationInput
-    ) {
+            Swerve swerve,
+            DoubleSupplier forwardInput,
+            DoubleSupplier leftInput,
+            DoubleSupplier rotationInput) {
         this.swerve = swerve;
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput, rotationInput);
         addRequirements(swerve);
@@ -73,6 +73,15 @@ public class ManualDriveCommand extends Command {
         swerve.seedFieldCentric();
     }
 
+    /**
+     * Sets a multiplier (0.0 – 1.0) applied to max translation and rotation speed.
+     * Call with {@code Constants.Driving.kIntakingSpeedMultiplier} while intaking,
+     * and {@code 1.0} to restore full speed.
+     */
+    public void setSpeedMultiplier(double multiplier) {
+        this.speedMultiplier = Math.max(0.0, Math.min(1.0, multiplier));
+    }
+
     public void setLockedHeading(Rotation2d heading) {
         lockedHeading = Optional.of(heading);
         currentState = State.DRIVING_WITH_LOCKED_HEADING;
@@ -80,7 +89,8 @@ public class ManualDriveCommand extends Command {
 
     private void setLockedHeadingToCurrent() {
         final Rotation2d headingInBlueAlliancePerspective = swerve.getState().Pose.getRotation();
-        final Rotation2d headingInOperatorPerspective = headingInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
+        final Rotation2d headingInOperatorPerspective = headingInBlueAlliancePerspective
+                .rotateBy(swerve.getOperatorForwardDirection());
         setLockedHeading(headingInOperatorPerspective);
     }
 
@@ -110,7 +120,8 @@ public class ManualDriveCommand extends Command {
         if (input.hasRotation()) {
             currentState = State.DRIVING_WITH_MANUAL_ROTATION;
         } else if (input.hasTranslation()) {
-            currentState = lockedHeading.isPresent() ? State.DRIVING_WITH_LOCKED_HEADING : State.DRIVING_WITH_MANUAL_ROTATION;
+            currentState = lockedHeading.isPresent() ? State.DRIVING_WITH_LOCKED_HEADING
+                    : State.DRIVING_WITH_MANUAL_ROTATION;
         } else if (previousInput.hasRotation() || previousInput.hasTranslation()) {
             currentState = State.IDLING;
         }
@@ -123,19 +134,18 @@ public class ManualDriveCommand extends Command {
             case DRIVING_WITH_MANUAL_ROTATION:
                 lockHeadingIfRotationStopped(input);
                 swerve.setControl(
-                    fieldCentricRequest
-                        .withVelocityX(Driving.kMaxSpeed.times(input.forward))
-                        .withVelocityY(Driving.kMaxSpeed.times(input.left))
-                        .withRotationalRate(Driving.kMaxRotationalRate.times(input.rotation))
-                );
+                        fieldCentricRequest
+                                .withVelocityX(Driving.kMaxSpeed.times(input.forward * speedMultiplier))
+                                .withVelocityY(Driving.kMaxSpeed.times(input.left * speedMultiplier))
+                                .withRotationalRate(
+                                        Driving.kMaxRotationalRate.times(input.rotation * speedMultiplier)));
                 break;
             case DRIVING_WITH_LOCKED_HEADING:
                 swerve.setControl(
-                    fieldCentricFacingAngleRequest
-                        .withVelocityX(Driving.kMaxSpeed.times(input.forward))
-                        .withVelocityY(Driving.kMaxSpeed.times(input.left))
-                        .withTargetDirection(lockedHeading.get())
-                );
+                        fieldCentricFacingAngleRequest
+                                .withVelocityX(Driving.kMaxSpeed.times(input.forward * speedMultiplier))
+                                .withVelocityY(Driving.kMaxSpeed.times(input.left * speedMultiplier))
+                                .withTargetDirection(lockedHeading.get()));
                 break;
         }
     }

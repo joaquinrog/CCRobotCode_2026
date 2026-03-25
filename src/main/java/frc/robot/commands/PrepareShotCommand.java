@@ -19,22 +19,25 @@ import frc.robot.subsystems.Shooter;
 
 public class PrepareShotCommand extends Command {
     private static final InterpolatingTreeMap<Distance, Shot> distanceToShotMap = new InterpolatingTreeMap<>(
-        (startValue, endValue, q) -> 
-            InverseInterpolator.forDouble()
-                .inverseInterpolate(startValue.in(Meters), endValue.in(Meters), q.in(Meters)),
-        (startValue, endValue, t) ->
-            new Shot(
-                Interpolator.forDouble()
-                    .interpolate(startValue.shooterRPM, endValue.shooterRPM, t),
-                Interpolator.forDouble()
-                    .interpolate(startValue.hoodPosition, endValue.hoodPosition, t)
-            )
-    );
+            (startValue, endValue, q) -> InverseInterpolator.forDouble()
+                    .inverseInterpolate(startValue.in(Meters), endValue.in(Meters), q.in(Meters)),
+            (startValue, endValue, t) -> new Shot(
+                    Interpolator.forDouble()
+                            .interpolate(startValue.shooterRPM, endValue.shooterRPM, t),
+                    Interpolator.forDouble()
+                            .interpolate(startValue.hoodPosition, endValue.hoodPosition, t)));
 
     static {
-        distanceToShotMap.put(Inches.of(52.0), new Shot(2800, 0.19));
-        distanceToShotMap.put(Inches.of(114.4), new Shot(3275, 0.40));
-        distanceToShotMap.put(Inches.of(165.5), new Shot(3650, 0.48));
+        distanceToShotMap.put(Inches.of(52.0), new Shot(3000, 0.19));
+        distanceToShotMap.put(Inches.of(59.0), new Shot(3033, 0.22));
+        distanceToShotMap.put(Inches.of(66), new Shot(3063, 0.25));
+        distanceToShotMap.put(Inches.of(80), new Shot(3115, 0.31));
+        distanceToShotMap.put(Inches.of(87), new Shot(3161, 0.35));
+        distanceToShotMap.put(Inches.of(94), new Shot(3168, 0.367));
+        distanceToShotMap.put(Inches.of(114), new Shot(3252, 0.47));
+        distanceToShotMap.put(Inches.of(134), new Shot(3314, 0.55));
+        distanceToShotMap.put(Inches.of(165), new Shot(3550, 0.7));
+        // distanceToShotMap.put(Inches.of(165.5), new Shot(3650, 0.60));
     }
 
     private final Shooter shooter;

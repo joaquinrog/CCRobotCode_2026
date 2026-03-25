@@ -52,6 +52,7 @@ public class RobotContainer {
     private final SwerveTelemetry swerveTelemetry = new SwerveTelemetry(Driving.kMaxSpeed.in(MetersPerSecond));
 
     private final CommandXboxController driver = new CommandXboxController(0);
+    private ManualDriveCommand manualDriveCommand;
 
     private final Dashboard dashboard = new Dashboard(
             swerve,
@@ -118,7 +119,7 @@ public class RobotContainer {
 
         driver.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
         driver.rightBumper().whileTrue(subsystemCommands.shootManually());
-        driver.leftTrigger().whileTrue(intake.intakeCommand());
+        driver.leftTrigger().whileTrue(intake.intakeCommand(manualDriveCommand));
         driver.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
 
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
@@ -129,7 +130,7 @@ public class RobotContainer {
     }
 
     private void configureManualDriveBindings() {
-        final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
+        manualDriveCommand = new ManualDriveCommand(
                 swerve,
                 () -> -driver.getLeftY(),
                 () -> -driver.getLeftX(),
@@ -140,7 +141,6 @@ public class RobotContainer {
         driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
         driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
-
         driver.start().whileTrue(subsystemCommands.shootDashboardManually());
     }
 

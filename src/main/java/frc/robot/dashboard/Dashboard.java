@@ -1,26 +1,27 @@
 package frc.robot.dashboard;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import static edu.wpi.first.units.Units.Meters;
-
-import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.Landmarks;
-
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.IntegerPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Landmarks;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Hood;
@@ -85,15 +86,14 @@ public final class Dashboard {
     private final DoublePublisher shooterTargetPub = root.getDoubleTopic("Launch/ShooterTargetRPM").publish();
     private final DoublePublisher shooterActualPub = root.getDoubleTopic("Launch/ShooterActualRPM").publish();
     private final DoublePublisher shooterErrorPub = root.getDoubleTopic("Launch/ShooterErrorRPM").publish();
-
-    private final DoublePublisher distanceToHubMetersPub = root.getDoubleTopic("Launch/DistanceToHubMeters").publish();
-
     private final DoublePublisher hoodTargetPub = root.getDoubleTopic("Launch/HoodTarget").publish();
     private final DoublePublisher hoodActualPub = root.getDoubleTopic("Launch/HoodActual").publish();
     private final BooleanPublisher shooterReadyPub = root.getBooleanTopic("Launch/ShooterReady").publish();
     private final BooleanPublisher hoodReadyPub = root.getBooleanTopic("Launch/HoodReady").publish();
     private final BooleanPublisher launchAllowedPub = root.getBooleanTopic("Launch/Allowed").publish();
     private final StringPublisher launchBlockReasonPub = root.getStringTopic("Launch/BlockReason").publish();
+    private final DoublePublisher distanceToHubInchesPub = root.getDoubleTopic("Launch/DistanceToHubInches").publish();
+    private final DoublePublisher distanceToHubMetersPub = root.getDoubleTopic("Launch/DistanceToHubMeters").publish();
     private final StringPublisher launchWaitingOnPub = root.getStringTopic("Launch/WaitingOn").publish();
 
     // ================= Vision =================
@@ -225,6 +225,7 @@ public final class Dashboard {
         poseThetaDegPub.set(safeDouble(pose.getRotation().getDegrees()));
 
         distanceToHubMetersPub.set(getDistanceToHubMeters(pose));
+        distanceToHubInchesPub.set(getDistanceToHubInches(pose));
 
         // Target pose + error
         hasTargetPosePub.set(targetPose.isPresent());
@@ -383,10 +384,18 @@ public final class Dashboard {
         return pose != null ? pose : new Pose2d();
     }
 
-    private double getDistanceToHubMeters(Pose2d robotPose) {
+    private Distance getDistanceToHub(Pose2d robotPose) {
         final Translation2d robotPosition = safePose(robotPose).getTranslation();
         final Translation2d hubPosition = Landmarks.hubPosition();
-        return safeDouble(Meters.of(robotPosition.getDistance(hubPosition)).in(Meters));
+        return Meters.of(robotPosition.getDistance(hubPosition));
+    }
+
+    private double getDistanceToHubMeters(Pose2d robotPose) {
+        return safeDouble(getDistanceToHub(robotPose).in(Meters));
+    }
+
+    private double getDistanceToHubInches(Pose2d robotPose) {
+        return safeDouble(getDistanceToHub(robotPose).in(Inches));
     }
 
     private String currentMode() {
