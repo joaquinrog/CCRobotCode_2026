@@ -90,9 +90,23 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZLeftTrajectory = new ChoreoTraj(
 	    "NZLeftTrajectory",
 	    OptionalInt.empty(),
-	    3.58403,
+	    9.78957,
 	    new Pose2d(3.398, 5.477, Rotation2d.fromRadians(-1)),
-	    new Pose2d(7.774, 5.364, Rotation2d.fromRadians(-1.571))
+	    new Pose2d(2.537, 4.754, Rotation2d.fromRadians(-0.441))
+	);
+	public static final ChoreoTraj NZLeftTrajectory$0 = new ChoreoTraj(
+	    "NZLeftTrajectory",
+	    OptionalInt.of(0),
+	    2.70006,
+	    new Pose2d(3.398, 5.477, Rotation2d.fromRadians(-1)),
+	    new Pose2d(5.6, 5.652, Rotation2d.fromRadians(-1))
+	);
+	public static final ChoreoTraj NZLeftTrajectory$1 = new ChoreoTraj(
+	    "NZLeftTrajectory",
+	    OptionalInt.of(1),
+	    7.089509999999999,
+	    new Pose2d(5.6, 5.652, Rotation2d.fromRadians(-1)),
+	    new Pose2d(2.537, 4.754, Rotation2d.fromRadians(-0.441))
 	);
 
     /**
@@ -109,7 +123,9 @@ public record ChoreoTraj(
 		Map.entry("OutpostAndDepotTrajectory$1", OutpostAndDepotTrajectory$1),
 		Map.entry("OutpostAndDepotTrajectory$2", OutpostAndDepotTrajectory$2),
 		Map.entry("OutpostAndDepotTrajectory$3", OutpostAndDepotTrajectory$3),
-		Map.entry("NZLeftTrajectory", NZLeftTrajectory)
+		Map.entry("NZLeftTrajectory", NZLeftTrajectory),
+		Map.entry("NZLeftTrajectory$0", NZLeftTrajectory$0),
+		Map.entry("NZLeftTrajectory$1", NZLeftTrajectory$1)
     );
 
     /**
