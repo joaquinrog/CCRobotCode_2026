@@ -116,7 +116,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("LowerIntakeAndDriveToShoot");
                                                         dashboard.setAutoPath("NZLeftTrajectory$1");
                                                 }),
-                                                Commands.waitSeconds(0.5),
+                                                Commands.waitSeconds(1), // cambiar este si brownout
                                                 Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
                                                 Commands.waitSeconds(0.2),
                                                 Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));
@@ -148,7 +148,6 @@ public final class AutoRoutines {
 
                 final AutoTrajectory startToFirstStop = NZRightTrajectory$0.asAutoTraj(routine);
                 final AutoTrajectory firstStopToShootingPose = NZRightTrajectory$1.asAutoTraj(routine);
-
                 routine.active().onTrue(
                                 Commands.sequence(
                                                 Commands.runOnce(() -> {
@@ -162,39 +161,27 @@ public final class AutoRoutines {
                                                 startToFirstStop.resetOdometry(),
                                                 startToFirstStop.cmd()));
 
-                // Cuando llega al primer stop, actualiza breadcrumbs
-                startToFirstStop.done().onTrue(
-                                Commands.runOnce(() -> {
-                                        dashboard.completeAutoState("StartToFirstStop");
-                                        dashboard.setAutoMarker("ReachedFirstStop");
-                                        dashboard.setAutoState("IntakeAndDriveToShoot");
-                                        dashboard.setAutoPath("NZRightTrajectory$1");
-                                }));
-
-                // Desde el primer stop, baja intake y lo deja corriendo
                 startToFirstStop.done().onTrue(
                                 Commands.sequence(
+                                                Commands.runOnce(() -> {
+                                                        dashboard.completeAutoState("StartToFirstStop");
+                                                        dashboard.setAutoMarker("ReachedFirstStop");
+                                                        dashboard.setAutoState("LowerIntakeAndDriveToShoot");
+                                                        dashboard.setAutoPath("NZRightTrajectory$1");
+                                                }),
+                                                
+                                                Commands.waitSeconds(1), // cambiar este si brownout
                                                 Commands.runOnce(() -> intake.set(Intake.Position.INTAKE)),
-                                                intake.intakeCommand()));
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> dashboard.setAutoMarker("IntakeLowered"))));
 
-                // Desde el primer stop, también arranca el siguiente tramo
+                startToFirstStop.done().onTrue(intake.intakeCommand());
+
                 startToFirstStop.done().onTrue(firstStopToShootingPose.cmd());
-
-                // OJO: NO usamos limelight.idle() aquí, para que siga corriendo el default
-                // updateVisionCommand() y vaya corrigiendo la pose mientras cruza el bump
-
-                // Prepara shooter y hood durante el tramo final
-                firstStopToShootingPose.atTime(0.5).onTrue(
-                                Commands.parallel(
-                                                shooter.spinUpCommand(2600),
-                                                hood.positionCommand(0.32)));
-
-                // Al llegar al shooting pose: aim + shoot, dejando que el intake siga hasta que
-                // el feed/agitate lo reemplace y el timeout lo apague
                 firstStopToShootingPose.done().onTrue(
                                 Commands.sequence(
                                                 Commands.runOnce(() -> {
-                                                        dashboard.completeAutoState("IntakeAndDriveToShoot");
+                                                        dashboard.completeAutoState("LowerIntakeAndDriveToShoot");
                                                         dashboard.setAutoMarker("ReachedShootingPose");
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
