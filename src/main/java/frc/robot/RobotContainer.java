@@ -123,13 +123,15 @@ public class RobotContainer {
         driver.rightTrigger().whileTrue(subsystemCommands.aimAndShoot());
         driver.rightBumper().whileTrue(subsystemCommands.shootManually());
         driver.leftTrigger().whileTrue(intakeWithDriveSlowModeCommand());
-        driver.leftBumper().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
+        driver.leftBumper().whileTrue(subsystemCommands.ejectCommand());
+
+        driver.a().onTrue(intake.runOnce(() -> intake.set(Intake.Position.STOWED)));
 
         driver.povUp().onTrue(hanger.positionCommand(Hanger.Position.HANGING));
-        // driver.povUp().onTrue(intake.runOnce(() ->
-        // intake.set(Intake.Position.INTAKE)));
         driver.povDown().onTrue(hanger.positionCommand(Hanger.Position.HUNG));
-        // driver.povDown().onTrue(feeder.runOnce(() -> feeder.setPercentOutput(-0.5)));
+
+        driver.start().whileTrue(subsystemCommands.shootDashboardManually());
+
     }
 
     private Command intakeWithDriveSlowModeCommand() {
@@ -154,12 +156,12 @@ public class RobotContainer {
 
         swerve.setDefaultCommand(manualDriveCommand);
 
-        driver.a().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.k180deg)));
+        // driver.a().onTrue(Commands.runOnce(() ->
+        // manualDriveCommand.setLockedHeading(Rotation2d.k180deg)));
         driver.b().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCW_90deg)));
         driver.x().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kCCW_90deg)));
         driver.y().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(Rotation2d.kZero)));
         driver.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
-        driver.start().whileTrue(subsystemCommands.shootDashboardManually());
     }
 
     public void dashboardPeriodic() {

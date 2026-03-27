@@ -25,7 +25,8 @@ import frc.robot.Ports;
 
 public class Feeder extends SubsystemBase {
     public enum Speed {
-        FEED(5000);
+        FEED(5000),
+        REVERSE(-2000);
 
         private final double rpm;
 
@@ -46,42 +47,39 @@ public class Feeder extends SubsystemBase {
         motor = new TalonFX(Ports.kFeeder, Ports.kRoboRioCANBus);
 
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.CounterClockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Coast)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(50))
-                    .withSupplyCurrentLimitEnable(true)
-            )
-            .withSlot0(
-                new Slot0Configs()
-                    .withKP(1)
-                    .withKI(0)
-                    .withKD(0)
-                    .withKV(12.0 / KrakenX60.kFreeSpeed.in(RotationsPerSecond)) // 12 volts when requesting max RPS
-            );
-        
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.CounterClockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Coast))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(50))
+                                .withSupplyCurrentLimitEnable(true))
+                .withSlot0(
+                        new Slot0Configs()
+                                .withKP(1)
+                                .withKI(0)
+                                .withKD(0)
+                                .withKV(12.0 / KrakenX60.kFreeSpeed.in(RotationsPerSecond)) // 12 volts when requesting
+                                                                                            // max RPS
+                );
+
         motor.getConfigurator().apply(config);
         SmartDashboard.putData(this);
     }
 
     public void set(Speed speed) {
         motor.setControl(
-            velocityRequest
-                .withVelocity(speed.angularVelocity())
-        );
+                velocityRequest
+                        .withVelocity(speed.angularVelocity()));
     }
 
     public void setPercentOutput(double percentOutput) {
         motor.setControl(
-            voltageRequest
-                .withOutput(Volts.of(percentOutput * 12.0))
-        );
+                voltageRequest
+                        .withOutput(Volts.of(percentOutput * 12.0)));
     }
 
     public Command feedCommand() {
@@ -90,7 +88,8 @@ public class Feeder extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
+        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
+                null);
         builder.addDoubleProperty("RPM", () -> motor.getVelocity().getValue().in(RPM), null);
         builder.addDoubleProperty("Stator Current", () -> motor.getStatorCurrent().getValue().in(Amps), null);
         builder.addDoubleProperty("Supply Current", () -> motor.getSupplyCurrent().getValue().in(Amps), null);

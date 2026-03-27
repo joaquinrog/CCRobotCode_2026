@@ -55,7 +55,7 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZLeftTrajectory = new ChoreoTraj(
 	    "NZLeftTrajectory",
 	    OptionalInt.empty(),
-	    10.71295,
+	    11.11575,
 	    new Pose2d(3.427, 5.343, Rotation2d.fromRadians(-1)),
 	    new Pose2d(2.592, 4.565, Rotation2d.fromRadians(-0.441))
 	);
@@ -69,14 +69,14 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZLeftTrajectory$1 = new ChoreoTraj(
 	    "NZLeftTrajectory",
 	    OptionalInt.of(1),
-	    7.83723,
+	    8.24003,
 	    new Pose2d(5.845, 5.647, Rotation2d.fromRadians(-1)),
 	    new Pose2d(2.592, 4.565, Rotation2d.fromRadians(-0.441))
 	);
 	public static final ChoreoTraj NZLeftTrajectory_Center = new ChoreoTraj(
 	    "NZLeftTrajectory_Center",
 	    OptionalInt.empty(),
-	    9.29723,
+	    9.06834,
 	    new Pose2d(3.427, 5.343, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(2.627, 4.583, Rotation2d.fromRadians(-0.434))
 	);
@@ -90,36 +90,36 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZLeftTrajectory_Center$1 = new ChoreoTraj(
 	    "NZLeftTrajectory_Center",
 	    OptionalInt.of(1),
-	    6.384790000000001,
+	    6.155899999999999,
 	    new Pose2d(5.898, 5.596, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(2.627, 4.583, Rotation2d.fromRadians(-0.434))
 	);
 	public static final ChoreoTraj NZRightDesmadre = new ChoreoTraj(
 	    "NZRightDesmadre",
 	    OptionalInt.empty(),
-	    11.27187,
+	    12.15787,
 	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(2.489, 3.336, Rotation2d.fromRadians(0.547))
 	);
 	public static final ChoreoTraj NZRightDesmadre$0 = new ChoreoTraj(
 	    "NZRightDesmadre",
 	    OptionalInt.of(0),
-	    2.35722,
+	    2.36352,
 	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(5.795, 2.502, Rotation2d.fromRadians(0.698))
 	);
 	public static final ChoreoTraj NZRightDesmadre$1 = new ChoreoTraj(
 	    "NZRightDesmadre",
 	    OptionalInt.of(1),
-	    2.3641300000000003,
+	    3.2940600000000004,
 	    new Pose2d(5.795, 2.502, Rotation2d.fromRadians(0.698)),
-	    new Pose2d(10.133, 3.1, Rotation2d.fromRadians(-1.286))
+	    new Pose2d(9.54, 3.949, Rotation2d.fromRadians(-3.098))
 	);
 	public static final ChoreoTraj NZRightDesmadre$2 = new ChoreoTraj(
 	    "NZRightDesmadre",
 	    OptionalInt.of(2),
-	    6.55052,
-	    new Pose2d(10.133, 3.1, Rotation2d.fromRadians(-1.286)),
+	    6.500290000000001,
+	    new Pose2d(9.54, 3.949, Rotation2d.fromRadians(-3.098)),
 	    new Pose2d(2.489, 3.336, Rotation2d.fromRadians(0.547))
 	);
 	public static final ChoreoTraj NZRightTrajectory = new ChoreoTraj(
@@ -146,7 +146,7 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZRightTrajectory_Center = new ChoreoTraj(
 	    "NZRightTrajectory_Center",
 	    OptionalInt.empty(),
-	    12.98337,
+	    11.89935,
 	    new Pose2d(3.401, 2.377, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(2.588, 3.266, Rotation2d.fromRadians(0.388))
 	);
@@ -160,7 +160,7 @@ public record ChoreoTraj(
 	public static final ChoreoTraj NZRightTrajectory_Center$1 = new ChoreoTraj(
 	    "NZRightTrajectory_Center",
 	    OptionalInt.of(1),
-	    10.06136,
+	    8.97734,
 	    new Pose2d(5.895, 2.502, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(2.588, 3.266, Rotation2d.fromRadians(0.388))
 	);

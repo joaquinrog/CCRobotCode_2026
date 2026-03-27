@@ -35,7 +35,8 @@ import frc.robot.Ports;
 public class Intake extends SubsystemBase {
     public enum Speed {
         STOP(0),
-        INTAKE(0.8);
+        INTAKE(0.8),
+        OUTTAKE(-0.7);
 
         private final double percentOutput;
 
@@ -92,9 +93,9 @@ public class Intake extends SubsystemBase {
                                 .withNeutralMode(NeutralModeValue.Brake))
                 .withCurrentLimits(
                         new CurrentLimitsConfigs()
-                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimit(Amps.of(100)) // 120
                                 .withStatorCurrentLimitEnable(true)
-                                .withSupplyCurrentLimit(Amps.of(70))
+                                .withSupplyCurrentLimit(Amps.of(60)) // 60
                                 .withSupplyCurrentLimitEnable(true))
                 .withFeedback(
                         new FeedbackConfigs()
@@ -123,9 +124,9 @@ public class Intake extends SubsystemBase {
                                 .withNeutralMode(NeutralModeValue.Brake))
                 .withCurrentLimits(
                         new CurrentLimitsConfigs()
-                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimit(Amps.of(120)) // 120
                                 .withStatorCurrentLimitEnable(true)
-                                .withSupplyCurrentLimit(Amps.of(70))
+                                .withSupplyCurrentLimit(Amps.of(70)) // 70
                                 .withSupplyCurrentLimitEnable(true));
         rollerMotor.getConfigurator().apply(config);
     }

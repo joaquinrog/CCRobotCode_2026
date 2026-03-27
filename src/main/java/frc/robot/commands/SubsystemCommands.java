@@ -150,4 +150,19 @@ public final class SubsystemCommands {
                         Commands.waitSeconds(0.125)
                                 .andThen(floor.feedCommand().alongWith(intake.agitateCommand()))));
     }
+
+    public Command ejectCommand() {
+        return Commands.startEnd(
+                () -> {
+                    intake.set(Intake.Position.INTAKE);
+                    intake.set(Intake.Speed.OUTTAKE);
+                    floor.set(Floor.Speed.REVERSE);
+                    feeder.set(Feeder.Speed.REVERSE);
+                },
+                () -> {
+                    intake.set(Intake.Speed.STOP);
+                    floor.set(Floor.Speed.STOP);
+                    feeder.setPercentOutput(0.0);
+                });
+    }
 }

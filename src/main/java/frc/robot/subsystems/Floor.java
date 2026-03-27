@@ -22,7 +22,8 @@ import frc.robot.Ports;
 public class Floor extends SubsystemBase {
     public enum Speed {
         STOP(0),
-        FEED(0.83);
+        FEED(0.83),
+        REVERSE(-0.7);
 
         private final double percentOutput;
 
@@ -42,18 +43,16 @@ public class Floor extends SubsystemBase {
         motor = new TalonFX(Ports.kFloor, Ports.kRoboRioCANBus);
 
         final TalonFXConfiguration config = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs()
-                    .withInverted(InvertedValue.Clockwise_Positive)
-                    .withNeutralMode(NeutralModeValue.Brake)
-            )
-            .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(30))
-                    .withSupplyCurrentLimitEnable(true)
-            );
+                .withMotorOutput(
+                        new MotorOutputConfigs()
+                                .withInverted(InvertedValue.Clockwise_Positive)
+                                .withNeutralMode(NeutralModeValue.Brake))
+                .withCurrentLimits(
+                        new CurrentLimitsConfigs()
+                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimitEnable(true)
+                                .withSupplyCurrentLimit(Amps.of(30))
+                                .withSupplyCurrentLimitEnable(true));
 
         motor.getConfigurator().apply(config);
         SmartDashboard.putData(this);
@@ -61,9 +60,8 @@ public class Floor extends SubsystemBase {
 
     public void set(Speed speed) {
         motor.setControl(
-            voltageRequest
-                .withOutput(speed.voltage())
-        );
+                voltageRequest
+                        .withOutput(speed.voltage()));
     }
 
     public Command feedCommand() {
@@ -72,7 +70,8 @@ public class Floor extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null", null);
+        builder.addStringProperty("Command", () -> getCurrentCommand() != null ? getCurrentCommand().getName() : "null",
+                null);
         builder.addDoubleProperty("RPM", () -> motor.getVelocity().getValue().in(RPM), null);
         builder.addDoubleProperty("Stator Current", () -> motor.getStatorCurrent().getValue().in(Amps), null);
         builder.addDoubleProperty("Supply Current", () -> motor.getSupplyCurrent().getValue().in(Amps), null);

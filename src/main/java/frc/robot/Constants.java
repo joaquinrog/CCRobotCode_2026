@@ -33,9 +33,9 @@ public final class Constants {
          * Speed multiplier applied to translation and rotation while intaking (0.0 –
          * 1.0)
          */
-        public static final double kIntakingTranslationSpeedMultiplier = 0.18;
+        public static final double kIntakingTranslationSpeedMultiplier = 0.25;
 
-        public static final double kIntakingRotationSpeedMultiplier = 0.3;
+        public static final double kIntakingRotationSpeedMultiplier = 0.35;
     }
 
     public static class KrakenX60 {

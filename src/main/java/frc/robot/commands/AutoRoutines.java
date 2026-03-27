@@ -141,7 +141,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
-                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
                                                         dashboard.clearAutoWaitingOn();
@@ -196,7 +196,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
-                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
                                                         dashboard.clearAutoWaitingOn();
@@ -250,7 +250,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
-                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
                                                         dashboard.clearAutoWaitingOn();
@@ -305,7 +305,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
-                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
                                                         dashboard.clearAutoWaitingOn();
@@ -369,7 +369,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
-                                                subsystemCommands.aimAndShoot().withTimeout(5.0),
+                                                subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
                                                         dashboard.clearAutoWaitingOn();
