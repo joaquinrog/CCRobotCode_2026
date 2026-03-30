@@ -93,9 +93,9 @@ public class Intake extends SubsystemBase {
                                 .withNeutralMode(NeutralModeValue.Brake))
                 .withCurrentLimits(
                         new CurrentLimitsConfigs()
-                                .withStatorCurrentLimit(Amps.of(100)) // 120
+                                .withStatorCurrentLimit(Amps.of(80)) // 120
                                 .withStatorCurrentLimitEnable(true)
-                                .withSupplyCurrentLimit(Amps.of(60)) // 60
+                                .withSupplyCurrentLimit(Amps.of(40)) // 60
                                 .withSupplyCurrentLimitEnable(true))
                 .withFeedback(
                         new FeedbackConfigs()
@@ -124,9 +124,9 @@ public class Intake extends SubsystemBase {
                                 .withNeutralMode(NeutralModeValue.Brake))
                 .withCurrentLimits(
                         new CurrentLimitsConfigs()
-                                .withStatorCurrentLimit(Amps.of(120)) // 120
+                                .withStatorCurrentLimit(Amps.of(80)) // 120
                                 .withStatorCurrentLimitEnable(true)
-                                .withSupplyCurrentLimit(Amps.of(70)) // 70
+                                .withSupplyCurrentLimit(Amps.of(30)) // 70
                                 .withSupplyCurrentLimitEnable(true));
         rollerMotor.getConfigurator().apply(config);
     }

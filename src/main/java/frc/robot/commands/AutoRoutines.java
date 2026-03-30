@@ -41,6 +41,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.Intake.Speed;
 
 public final class AutoRoutines {
         private final Swerve swerve;
@@ -141,6 +142,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
+                                                intake.runOnce(() -> intake.set(Intake.Speed.STOP)),
                                                 subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
@@ -196,6 +198,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
+                                                intake.runOnce(() -> intake.set(Intake.Speed.STOP)),
                                                 subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
@@ -250,6 +253,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
+                                                intake.runOnce(() -> intake.set(Intake.Speed.STOP)),
                                                 subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");
@@ -305,6 +309,7 @@ public final class AutoRoutines {
                                                         dashboard.setAutoState("AimAndShoot");
                                                         dashboard.setAutoWaitingOn("LaunchSequence");
                                                 }),
+                                                // intake.runOnce(() -> intake.set(Intake.Speed.STOP)),
                                                 subsystemCommands.aimAndShoot().withTimeout(10.0),
                                                 Commands.runOnce(() -> {
                                                         dashboard.completeAutoState("AimAndShoot");

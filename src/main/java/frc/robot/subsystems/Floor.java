@@ -49,9 +49,9 @@ public class Floor extends SubsystemBase {
                                 .withNeutralMode(NeutralModeValue.Brake))
                 .withCurrentLimits(
                         new CurrentLimitsConfigs()
-                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimit(Amps.of(80)) // 120
                                 .withStatorCurrentLimitEnable(true)
-                                .withSupplyCurrentLimit(Amps.of(30))
+                                .withSupplyCurrentLimit(Amps.of(30)) // 30
                                 .withSupplyCurrentLimitEnable(true));
 
         motor.getConfigurator().apply(config);

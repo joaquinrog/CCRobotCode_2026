@@ -58,6 +58,18 @@ public final class Dashboard {
     private final StringPublisher timeSourcePub = root.getStringTopic("Match/TimeSource").publish();
     private final BooleanPublisher officialActivePub = root.getBooleanTopic("Match/OfficialActive").publish();
 
+    // Match Helpers
+    private final MatchHelpers matchHelpers = new MatchHelpers();
+    // Driver widgets
+    private final BooleanPublisher hubActivePub = root.getBooleanTopic("Match/HubActive").publish();
+    private final BooleanPublisher didWeWinAutoPub = root.getBooleanTopic("Match/DidWeWinAuto").publish();
+    
+    // Debug / support widgets
+    private final BooleanPublisher transitionActivePub = root.getBooleanTopic("Match/TransitionActive").publish();
+
+    private final StringPublisher inactiveFirstAlliancePub = root.getStringTopic("Match/InactiveFirstAlliance")
+            .publish();
+
     // ================= Auto =================
     private final StringPublisher autoSelectedPub = root.getStringTopic("Auto/Selected").publish();
     private final StringPublisher autoStatePub = root.getStringTopic("Auto/State").publish();
@@ -190,6 +202,14 @@ public final class Dashboard {
         publishString("Mechanisms/FloorCommand", floorCmdPub, "None");
         publishString("Mechanisms/FeederCommand", feederCmdPub, "None");
 
+        // Match Helpers
+        hubActivePub.set(false);
+        didWeWinAutoPub.set(false);
+        transitionActivePub.set(false);
+        gameDataValidPub.set(false);
+        inactiveFirstAlliancePub.set("Unknown");
+        matchTimePub.set(0.0);
+
         publishString("Health/LastError", healthLastErrorPub, "");
         healthOkPub.set(true);
         healthErrorCountPub.set(0);
@@ -313,6 +333,12 @@ public final class Dashboard {
         healthOkPub.set((now - lastErrorSec) > 1.0);
         healthErrorCountPub.set(errorCount);
         publishString("Health/LastError", healthLastErrorPub, lastError);
+
+        // Match Helpers
+        inactiveFirstAlliancePub.set(matchHelpers.getInactiveFirstAllianceName());
+        transitionActivePub.set(matchHelpers.isTransitionActive());
+        didWeWinAutoPub.set(matchHelpers.didWeWinAuto());
+        hubActivePub.set(matchHelpers.isHubActive());
     }
 
     private void updateSlow(double now) {

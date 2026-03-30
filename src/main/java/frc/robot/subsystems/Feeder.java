@@ -53,9 +53,9 @@ public class Feeder extends SubsystemBase {
                                 .withNeutralMode(NeutralModeValue.Coast))
                 .withCurrentLimits(
                         new CurrentLimitsConfigs()
-                                .withStatorCurrentLimit(Amps.of(120))
+                                .withStatorCurrentLimit(Amps.of(110)) // 120
                                 .withStatorCurrentLimitEnable(true)
-                                .withSupplyCurrentLimit(Amps.of(50))
+                                .withSupplyCurrentLimit(Amps.of(40)) // 50
                                 .withSupplyCurrentLimitEnable(true))
                 .withSlot0(
                         new Slot0Configs()
